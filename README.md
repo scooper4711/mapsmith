@@ -28,7 +28,7 @@ Requires macOS 15+ and Xcode 16+ (Swift 6).
 ```sh
 swift test                         # unit tests
 scripts-build/bundle.sh            # builds "build/Flip Map Printer.app"
-scripts-build/bundle.sh --install  # …and copies it to ~/Applications
+scripts-build/bundle.sh --install  # …and copies it to /Applications
 ```
 
 Open `Package.swift` in Xcode to run and debug the app.
