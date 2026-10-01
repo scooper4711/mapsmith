@@ -5,6 +5,8 @@ at true scale — one grid square per inch — so they can be trimmed and taped 
 
 - **Open** a PDF or any image (⌘O, drag onto the window, or *Open With* in Finder).
   For PDFs, every large image in the document is shown as a thumbnail.
+  Each file opens in its own window, and **File › Open Recent** lists the latest ones.
+  Images dragged straight out of another app, such as a map from Pluck, can be dropped too.
 - **Select** a map: its grid is detected and it is split into pages that fit the
   printable area of the current printer and paper (**File › Page Setup…**).
   Edge strips thinner than 0.5 in are trimmed rather than printed on their own pages,

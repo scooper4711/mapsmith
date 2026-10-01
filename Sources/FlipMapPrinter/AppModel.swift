@@ -16,11 +16,9 @@ enum ScaleSource: Equatable {
     }
 }
 
-/// The app's state: the open file, its maps, the selected map and its tile plan.
+/// One window's state: the open file, its maps, the selected map and its tile plan.
 @MainActor @Observable
 final class AppModel {
-    static let shared = AppModel()
-
     private(set) var fileURL: URL?
     private(set) var items: [MapItem] = []
     private(set) var thumbnails: [UUID: CGImage] = [:]
@@ -36,7 +34,8 @@ final class AppModel {
     var manualPixelsPerInch: Double?
     var minimumSliverInches: Double = 0.5
 
-    let printInfo = NSPrintInfo.shared
+    /// Each window has its own page setup, starting from the one most recently chosen in any window.
+    let printInfo = NSPrintInfo.shared.copy() as? NSPrintInfo ?? .shared
     private(set) var page: PageGeometry = .a4Default
     private var loadTask: Task<Void, Never>?
 
@@ -69,24 +68,16 @@ final class AppModel {
             selectedItemID = found.count == 1 ? found[0].id : nil
             if found.count != 1 { clearSelection() }
             loadThumbnails(for: found)
-            NSDocumentController.shared.noteNewRecentDocumentURL(url)
         } catch {
             errorMessage = "\(error)"
         }
     }
 
-    func showOpenPanel() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.pdf, .image]
-        panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK, let url = panel.url { open(url) }
-    }
-
     private func loadThumbnails(for items: [MapItem]) {
         for item in items {
-            Task.detached(priority: .utility) {
+            Task.detached(priority: .utility) { [weak self] in
                 let image = try? MapLoader.thumbnail(item.source, maximumSize: 320)
-                await MainActor.run { if let image { AppModel.shared.thumbnails[item.id] = image } }
+                await MainActor.run { if let image { self?.thumbnails[item.id] = image } }
             }
         }
     }
@@ -105,9 +96,9 @@ final class AppModel {
         clearSelection()
         guard let item = selectedItem else { return }
         isBusy = true
-        loadTask = Task.detached(priority: .userInitiated) {
+        loadTask = Task.detached(priority: .userInitiated) { [weak self] in
             let result = Result { try MapAnalysis.analyse(item.source) }
-            await MainActor.run { AppModel.shared.finishLoading(item.id, result: result) }
+            await MainActor.run { self?.finishLoading(item.id, result: result) }
         }
     }
 
@@ -127,7 +118,9 @@ final class AppModel {
     // MARK: - Page setup, export and print
 
     func runPageSetup() {
-        if PrintSetup.runPageSetup(printInfo) { page = PrintSetup.geometry(of: printInfo) }
+        guard PrintSetup.runPageSetup(printInfo) else { return }
+        page = PrintSetup.geometry(of: printInfo)
+        if let chosen = printInfo.copy() as? NSPrintInfo { NSPrintInfo.shared = chosen }
     }
 
     func exportPDF() {
@@ -136,16 +129,17 @@ final class AppModel {
         panel.allowedContentTypes = [.pdf]
         panel.nameFieldStringValue = "\(documentTitle) tiles.pdf"
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        renderTiles(map: map, plan: plan) { data in
-            do { try data.write(to: url) } catch { AppModel.shared.errorMessage = "Export failed: \(error)" }
+        renderTiles(map: map, plan: plan) { [weak self] data in
+            do { try data.write(to: url) } catch { self?.errorMessage = "Export failed: \(error)" }
         }
     }
 
     func printTiles() {
         guard let map = loadedMap, let plan else { return }
         let title = documentTitle
+        let printInfo = self.printInfo
         renderTiles(map: map, plan: plan) { data in
-            PrintSetup.printTiles(data, title: title, printInfo: AppModel.shared.printInfo)
+            PrintSetup.printTiles(data, title: title, printInfo: printInfo)
         }
     }
 
@@ -158,13 +152,13 @@ final class AppModel {
     private func renderTiles(map: LoadedMap, plan: TilePlan, then finish: @escaping @MainActor (Data) -> Void) {
         isBusy = true
         let page = self.page
-        Task.detached(priority: .userInitiated) {
+        Task.detached(priority: .userInitiated) { [weak self] in
             let result = Result { try TileExporter.pdfData(map: map.image, plan: plan, page: page) }
             await MainActor.run {
-                AppModel.shared.isBusy = false
+                self?.isBusy = false
                 switch result {
                 case .success(let data): finish(data)
-                case .failure(let error): AppModel.shared.errorMessage = "\(error)"
+                case .failure(let error): self?.errorMessage = "\(error)"
                 }
             }
         }
