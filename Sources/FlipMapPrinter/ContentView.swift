@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(AppModel.self) private var model
+    @Environment(DocumentRouter.self) private var router
     @State private var showsInspector = true
 
     var body: some View {
@@ -20,9 +21,8 @@ struct ContentView: View {
         .navigationTitle(model.fileURL?.lastPathComponent ?? "Flip Map Printer")
         .toolbar { toolbar }
         .dropDestination(for: URL.self) { urls, _ in
-            guard let url = urls.first else { return false }
-            model.open(url)
-            return true
+            router.open(urls)
+            return !urls.isEmpty
         }
         .alert("Something went wrong", isPresented: Binding(
             get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } }
@@ -36,7 +36,7 @@ struct ContentView: View {
     @ToolbarContentBuilder private var toolbar: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             if model.isBusy { ProgressView().controlSize(.small) }
-            Button("Open", systemImage: "folder") { model.showOpenPanel() }
+            Button("Open", systemImage: "folder") { router.open(OpenPanel.chooseFiles()) }
             Button("Export PDF", systemImage: "square.and.arrow.up") { model.exportPDF() }
                 .disabled(model.plan == nil || model.isBusy)
             Button("Print", systemImage: "printer") { model.printTiles() }
