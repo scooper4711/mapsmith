@@ -30,3 +30,13 @@ copy, because the system list updates late.
 
 `DocumentRouter` and `RecentDocuments` live in `FlipMapCore` so the existing
 test target can cover them.
+
+## Dropped image data
+
+`MapDrop` handles drops through `onDrop` item providers instead of
+`dropDestination(for: URL.self)`, which only sees files. A provider with a
+real file URL is opened directly. Otherwise its image data (PNG when offered,
+as it is lossless) is saved by `DroppedImageStore` into the app's cache folder
+under an unused name, and that file is opened through the router. A promised
+file is not treated as a file: it is matched by exact type, since the promise
+is not readable.

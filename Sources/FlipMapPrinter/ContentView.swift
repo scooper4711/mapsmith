@@ -20,9 +20,8 @@ struct ContentView: View {
         }
         .navigationTitle(model.fileURL?.lastPathComponent ?? "Flip Map Printer")
         .toolbar { toolbar }
-        .dropDestination(for: URL.self) { urls, _ in
-            router.open(urls)
-            return !urls.isEmpty
+        .onDrop(of: MapDrop.acceptedTypes, isTargeted: nil) { providers in
+            MapDrop.open(providers, with: router)
         }
         .alert("Something went wrong", isPresented: Binding(
             get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } }

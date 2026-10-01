@@ -16,3 +16,9 @@
 - R2.2 Clear Menu empties the list.
 - R2.3 The list is the system's recent-documents list, so the Dock menu shows
   the same files.
+
+## R3 Dropping images from other apps
+- R3.1 An image dragged out of another app as image data rather than as a
+  file (for example a map dragged from Pluck) can be dropped on a window and
+  opens like any other file.
+- R3.2 When a drag carries both a file and image data, the file is used.
