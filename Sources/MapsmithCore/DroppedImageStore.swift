@@ -17,7 +17,8 @@ public struct DroppedImageStore: Sendable {
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         let folder = Bundle.main.bundleIdentifier ?? "Mapsmith"
-        return DroppedImageStore(directory: caches.appendingPathComponent(folder).appendingPathComponent("Dropped Maps"))
+        let directory = caches.appendingPathComponent(folder).appendingPathComponent("Dropped Maps")
+        return DroppedImageStore(directory: directory)
     }
 
     /// Writes the image under a name not already in use and returns where it went.

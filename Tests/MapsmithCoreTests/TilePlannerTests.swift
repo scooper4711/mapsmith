@@ -9,7 +9,8 @@ import Testing
     @Test func exactFitUsesWholeTiles() {
         let plan = TilePlanner.plan(mapSize: CGSize(width: 1600, height: 1050), pixelsPerInch: 100, settings: settings)
         #expect((plan.columns, plan.rows, plan.rotated) == (2, 1, false))
-        #expect(plan.tiles == [CGRect(x: 0, y: 0, width: 800, height: 1050), CGRect(x: 800, y: 0, width: 800, height: 1050)])
+        #expect(plan.tiles == [CGRect(x: 0, y: 0, width: 800, height: 1050),
+                               CGRect(x: 800, y: 0, width: 800, height: 1050)])
     }
 
     @Test func partialEdgeTileIsNarrower() {

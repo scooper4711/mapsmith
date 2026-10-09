@@ -23,8 +23,9 @@ struct TilePreviewView: View {
         } else if model.isBusy {
             ProgressView("Loading map and detecting grid…")
         } else if model.preview != nil {
-            ContentUnavailableView("Scale Needed", systemImage: "ruler",
-                                   description: Text("No grid was found. Enter the pixels per grid square in Settings."))
+            ContentUnavailableView(
+                "Scale Needed", systemImage: "ruler",
+                description: Text("No grid was found. Enter the pixels per grid square in Settings."))
         } else {
             ContentUnavailableView("Select a Map", systemImage: "square.grid.3x3",
                                    description: Text("Pick a map on the left to split it into printer pages."))

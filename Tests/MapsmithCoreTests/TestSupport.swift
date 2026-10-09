@@ -10,7 +10,8 @@ enum TestSupport {
 
     /// The local sample Flip-Mat PDFs (gitignored; tests using them are skipped when absent).
     static var samplePDFs: [URL] {
-        let files = (try? FileManager.default.contentsOfDirectory(at: testDataDirectory, includingPropertiesForKeys: nil))
+        let files = try? FileManager.default.contentsOfDirectory(at: testDataDirectory,
+                                                                  includingPropertiesForKeys: nil)
         return (files ?? []).filter { $0.pathExtension.lowercased() == "pdf" }.sorted { $0.path < $1.path }
     }
 
@@ -59,7 +60,8 @@ enum TestSupport {
     }
 
     /// Write a PDF whose pages contain the given images at the given rects (points).
-    static func writePDF(pages: [[(CGImage, CGRect)]], pageSize: CGSize = CGSize(width: 612, height: 792)) throws -> URL {
+    static func writePDF(pages: [[(CGImage, CGRect)]],
+                         pageSize: CGSize = CGSize(width: 612, height: 792)) throws -> URL {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).pdf")
         var mediaBox = CGRect(origin: .zero, size: pageSize)
         let context = CGContext(url as CFURL, mediaBox: &mediaBox, nil)!
