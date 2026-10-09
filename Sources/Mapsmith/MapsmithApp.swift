@@ -1,9 +1,9 @@
 import AppKit
-import FlipMapCore
+import MapsmithCore
 import SwiftUI
 
 @main
-struct FlipMapPrinterApp: App {
+struct MapsmithApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {

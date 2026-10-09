@@ -1,5 +1,5 @@
 import AppKit
-import FlipMapCore
+import MapsmithCore
 import os
 import UniformTypeIdentifiers
 
@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 enum MapDrop {
     static let acceptedTypes: [UTType] = [.fileURL, .image]
 
-    private nonisolated static let logger = Logger(subsystem: "com.github.scooper4711.FlipMapPrinter", category: "drop")
+    private nonisolated static let logger = Logger(subsystem: "com.github.scooper4711.Mapsmith", category: "drop")
 
     static func open(_ providers: [NSItemProvider], with router: DocumentRouter) -> Bool {
         let usable = providers.filter { carriesFile($0) || imageType(of: $0) != nil }

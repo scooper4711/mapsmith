@@ -16,7 +16,7 @@ public struct DroppedImageStore: Sendable {
     public static var standard: DroppedImageStore {
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
-        let folder = Bundle.main.bundleIdentifier ?? "FlipMapPrinter"
+        let folder = Bundle.main.bundleIdentifier ?? "Mapsmith"
         return DroppedImageStore(directory: caches.appendingPathComponent(folder).appendingPathComponent("Dropped Maps"))
     }
 

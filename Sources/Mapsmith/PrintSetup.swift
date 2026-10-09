@@ -1,5 +1,5 @@
 import AppKit
-import FlipMapCore
+import MapsmithCore
 import PDFKit
 
 /// Bridges the app's print settings (`NSPrintInfo`) to the tiling geometry.

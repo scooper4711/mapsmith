@@ -1,4 +1,4 @@
-import FlipMapCore
+import MapsmithCore
 import SwiftUI
 
 /// The selected map with the page boundaries it will be printed on.

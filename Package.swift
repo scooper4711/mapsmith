@@ -2,15 +2,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "FlipMapPrinter",
+    name: "Mapsmith",
     platforms: [.macOS(.v15)],
     products: [
-        .executable(name: "FlipMapPrinter", targets: ["FlipMapPrinter"]),
-        .library(name: "FlipMapCore", targets: ["FlipMapCore"]),
+        .executable(name: "Mapsmith", targets: ["Mapsmith"]),
+        .library(name: "MapsmithCore", targets: ["MapsmithCore"]),
     ],
     targets: [
-        .target(name: "FlipMapCore"),
-        .executableTarget(name: "FlipMapPrinter", dependencies: ["FlipMapCore"]),
-        .testTarget(name: "FlipMapCoreTests", dependencies: ["FlipMapCore"]),
+        .target(name: "MapsmithCore"),
+        .executableTarget(name: "Mapsmith", dependencies: ["MapsmithCore"]),
+        .testTarget(name: "MapsmithCoreTests", dependencies: ["MapsmithCore"]),
     ]
 )

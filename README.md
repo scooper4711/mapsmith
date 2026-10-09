@@ -1,4 +1,4 @@
-# Flip Map Printer
+# Mapsmith
 
 A macOS app that splits battle maps (Flip-Mats, PDFs, map images) into printer pages
 at true scale — one grid square per inch — so they can be trimmed and taped together.
@@ -29,7 +29,7 @@ Requires macOS 15+ and Xcode 16+ (Swift 6).
 
 ```sh
 swift test                         # unit tests
-scripts-build/bundle.sh            # builds "build/Flip Map Printer.app"
+scripts-build/bundle.sh            # builds "build/Mapsmith.app"
 scripts-build/bundle.sh --install  # …and copies it to /Applications
 ```
 

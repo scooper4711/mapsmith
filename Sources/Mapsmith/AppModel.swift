@@ -1,5 +1,5 @@
 import AppKit
-import FlipMapCore
+import MapsmithCore
 import Observation
 
 /// Where the print scale (map pixels per inch) came from.
