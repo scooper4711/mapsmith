@@ -31,7 +31,7 @@ enum PrintSetup {
     /// Prints a tile PDF exactly as laid out: no scaling, rotation or margins added.
     static func printTiles(_ data: Data, title: String, printInfo: NSPrintInfo) {
         guard let document = PDFDocument(data: data) else { return }
-        let info = printInfo.copy() as! NSPrintInfo
+        guard let info = printInfo.copy() as? NSPrintInfo else { return }
         info.topMargin = 0
         info.bottomMargin = 0
         info.leftMargin = 0

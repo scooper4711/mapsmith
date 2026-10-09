@@ -70,7 +70,7 @@ struct MapListView: View {
         if let image = model.thumbnails[item.id] {
             Image(decorative: image, scale: 1)
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .scaledToFit()
                 .frame(maxHeight: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         } else {

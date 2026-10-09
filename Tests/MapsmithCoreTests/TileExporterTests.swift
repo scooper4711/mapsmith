@@ -30,6 +30,28 @@ import Testing
         #expect(first.rect.equalTo(CGRect(x: 18, y: 774 - 720, width: 576, height: 720)))
     }
 
+    @Test func aRotatedPlanExportsTheTurnedMap() throws {
+        // 10.5 × 8 in fits one letter page only when turned.
+        let map = TestSupport.gridImage(width: 1050, height: 800, spacing: 100)
+        let settings = TileSettings(page: TestSupport.letterPage)
+        let plan = TilePlanner.plan(mapSize: CGSize(width: 1050, height: 800), pixelsPerInch: 100, settings: settings)
+        #expect(plan.rotated && plan.sheetCount == 1)
+        let data = try TileExporter.pdfData(map: map, plan: plan, page: settings.page)
+        #expect(CGDataProvider(data: data as CFData).flatMap(CGPDFDocument.init)?.numberOfPages == 1)
+    }
+
+    @Test func describesWhereExportFailed() {
+        #expect(TileExportError.imageProcessingFailed("cropping a tile").description
+                == "Tile export failed while cropping a tile")
+    }
+
+    @Test func aTileOutsideTheMapCannotBeCropped() {
+        let image = TestSupport.blankImage(width: 10, height: 10)
+        #expect(throws: TileExportError.imageProcessingFailed("cropping a tile")) {
+            try TileExporter.jpegTile(image, rect: CGRect(x: 50, y: 50, width: 10, height: 10))
+        }
+    }
+
     @Test func rotationSwapsDimensions() throws {
         let image = TestSupport.blankImage(width: 300, height: 100)
         let rotated = try TileExporter.rotatedClockwise(image)

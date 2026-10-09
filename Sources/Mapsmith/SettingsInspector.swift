@@ -19,7 +19,7 @@ struct SettingsInspector: View {
                 scaleDescription
                 TextField("Pixels per square", value: $model.manualPixelsPerInch,
                           format: .number.precision(.fractionLength(0...2)),
-                          prompt: Text(model.scaleSource?.pixelsPerInch.map { String(format: "%.1f", $0) } ?? "e.g. 300"))
+                          prompt: Text(detectedScale))
                 if model.manualPixelsPerInch != nil {
                     Button("Use Detected Scale") { model.manualPixelsPerInch = nil }
                 }
@@ -54,6 +54,11 @@ struct SettingsInspector: View {
         case nil:
             Text("Select a map").foregroundStyle(.secondary)
         }
+    }
+
+    /// The detected scale, shown as the manual field's placeholder.
+    private var detectedScale: String {
+        model.scaleSource?.pixelsPerInch.map { String(format: "%.1f", $0) } ?? "e.g. 300"
     }
 
     private func resultSection(_ plan: TilePlan) -> some View {

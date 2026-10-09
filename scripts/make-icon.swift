@@ -1,6 +1,6 @@
 #!/usr/bin/env swift
 // Draws the app icon (a parchment battle map split into print tiles, with a compass rose)
-// and writes a 1024 px PNG. Usage: swift scripts-build/make-icon.swift <output.png>
+// and writes a 1024 px PNG. Usage: swift scripts/make-icon.swift <output.png>
 import AppKit
 import CoreGraphics
 

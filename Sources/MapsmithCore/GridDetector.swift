@@ -119,13 +119,13 @@ struct GrayImage {
             throw GridDetectionError.imageTooSmall
         }
         var buffer = [UInt8](repeating: 0, count: width * height)
-        let (w, h) = (width, height)
+        let (pixelWidth, pixelHeight) = (width, height)
         buffer.withUnsafeMutableBytes { bytes in
-            let context = CGContext(data: bytes.baseAddress, width: w, height: h, bitsPerComponent: 8,
-                                    bytesPerRow: w, space: CGColorSpaceCreateDeviceGray(),
+            let context = CGContext(data: bytes.baseAddress, width: pixelWidth, height: pixelHeight,
+                                    bitsPerComponent: 8, bytesPerRow: pixelWidth, space: CGColorSpaceCreateDeviceGray(),
                                     bitmapInfo: CGImageAlphaInfo.none.rawValue)
             context?.interpolationQuality = .high
-            context?.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+            context?.draw(image, in: CGRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight))
         }
         pixels = buffer
     }

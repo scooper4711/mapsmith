@@ -6,11 +6,11 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .executable(name: "Mapsmith", targets: ["Mapsmith"]),
-        .library(name: "MapsmithCore", targets: ["MapsmithCore"]),
+        .library(name: "MapsmithCore", targets: ["MapsmithCore"])
     ],
     targets: [
         .target(name: "MapsmithCore"),
         .executableTarget(name: "Mapsmith", dependencies: ["MapsmithCore"]),
-        .testTarget(name: "MapsmithCoreTests", dependencies: ["MapsmithCore"]),
+        .testTarget(name: "MapsmithCoreTests", dependencies: ["MapsmithCore"])
     ]
 )
