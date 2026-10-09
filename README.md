@@ -17,6 +17,11 @@ tape together.
 
 It is free, and it works with any PDF or image you open; it contains no maps of its own.
 
+![The Mapsmith window: a world map split into ten numbered pages, with the detected grid scale and the page count in the inspector](docs/images/screenshot.png)
+
+*A world map with a 10° grid, split into ten A4 pages at one inch per square. The map is public
+domain (see [Sample map](#sample-map)).*
+
 ## Features
 
 - **Open** a PDF or any image (⌘O, drag it onto the window, or *Open With* in Finder). For a PDF, every
@@ -117,6 +122,12 @@ gets me to the destination faster than I could on foot. But I'm still the one be
 
 If you don't want to use tools written with AI assistance, then I respect that decision. That's why I'm
 transparent about it. You can make up your own mind.
+
+## Sample map
+
+The map in the screenshot is NASA Earth Observatory's
+[Whole world – land and oceans](https://commons.wikimedia.org/wiki/File:Whole_world_-_land_and_oceans.jpg)
+(public domain), with a 10° latitude and longitude grid drawn over it so each cell is square.
 
 ## License
 
