@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 import Testing
-@testable import FlipMapCore
+@testable import MapsmithCore
 
 @Suite struct GridDetectorTests {
     @Test(arguments: [50.0, 72.0, 100.0, 150.0])

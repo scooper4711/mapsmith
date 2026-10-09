@@ -28,7 +28,7 @@ the choice back to the shared instance, so later windows start from it.
 `RecentDocumentStore` protocol (so it can be tested) and keeps its own ordered
 copy, because the system list updates late.
 
-`DocumentRouter` and `RecentDocuments` live in `FlipMapCore` so the existing
+`DocumentRouter` and `RecentDocuments` live in `MapsmithCore` so the existing
 test target can cover them.
 
 ## Dropped image data

@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 import Testing
-@testable import FlipMapCore
+@testable import MapsmithCore
 
 @Suite struct TileExporterTests {
     @Test func exportsOnePaperSizedPagePerTile() throws {

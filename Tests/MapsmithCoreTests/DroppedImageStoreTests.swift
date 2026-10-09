@@ -1,11 +1,11 @@
 import Foundation
 import Testing
 import UniformTypeIdentifiers
-@testable import FlipMapCore
+@testable import MapsmithCore
 
 @Suite struct DroppedImageStoreTests {
     let store = DroppedImageStore(directory: FileManager.default.temporaryDirectory
-        .appendingPathComponent("FlipMapTests-\(UUID().uuidString)"))
+        .appendingPathComponent("MapsmithTests-\(UUID().uuidString)"))
     let data = Data([1, 2, 3])
 
     @Test func savesUnderTheSuggestedNameWithTheTypesExtension() throws {

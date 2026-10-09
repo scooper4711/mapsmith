@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Flip Map Printer</string>
+    <string>Mapsmith</string>
     <key>CFBundleDisplayName</key>
-    <string>Flip Map Printer</string>
+    <string>Mapsmith</string>
     <key>CFBundleIdentifier</key>
-    <string>com.github.scooper4711.FlipMapPrinter</string>
+    <string>com.github.scooper4711.Mapsmith</string>
     <key>CFBundleExecutable</key>
-    <string>FlipMapPrinter</string>
+    <string>Mapsmith</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundlePackageType</key>

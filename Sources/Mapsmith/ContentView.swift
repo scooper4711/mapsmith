@@ -1,4 +1,4 @@
-import FlipMapCore
+import MapsmithCore
 import SwiftUI
 
 struct ContentView: View {
@@ -18,7 +18,7 @@ struct ContentView: View {
                         .inspectorColumnWidth(min: 260, ideal: 280, max: 360)
                 }
         }
-        .navigationTitle(model.fileURL?.lastPathComponent ?? "Flip Map Printer")
+        .navigationTitle(model.fileURL?.lastPathComponent ?? "Mapsmith")
         .toolbar { toolbar }
         .onDrop(of: MapDrop.acceptedTypes, isTargeted: nil) { providers in
             MapDrop.open(providers, with: router)

@@ -1,8 +1,8 @@
 import CoreGraphics
 import Foundation
-@testable import FlipMapCore
+@testable import MapsmithCore
 
-/// Shared builders for FlipMapCore tests.
+/// Shared builders for MapsmithCore tests.
 enum TestSupport {
     static let testDataDirectory = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()

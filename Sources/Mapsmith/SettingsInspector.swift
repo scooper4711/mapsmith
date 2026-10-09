@@ -1,4 +1,4 @@
-import FlipMapCore
+import MapsmithCore
 import SwiftUI
 
 /// Print settings, map scale and the resulting page count.

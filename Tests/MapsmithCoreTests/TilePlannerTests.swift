@@ -1,6 +1,6 @@
 import CoreGraphics
 import Testing
-@testable import FlipMapCore
+@testable import MapsmithCore
 
 @Suite struct TilePlannerTests {
     /// 8 × 10.5 in printable area at 100 PPI → 800 × 1050 px tiles.

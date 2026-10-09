@@ -1,5 +1,5 @@
 import CoreGraphics
-import FlipMapCore
+import MapsmithCore
 
 /// A selected map loaded at full resolution, with a preview image and its print scale.
 struct MapAnalysis: @unchecked Sendable {

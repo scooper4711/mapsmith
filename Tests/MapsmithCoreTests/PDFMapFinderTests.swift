@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 import Testing
-@testable import FlipMapCore
+@testable import MapsmithCore
 
 @Suite struct PDFMapFinderTests {
     let map = TestSupport.gridImage(width: 600, height: 600, spacing: 50)

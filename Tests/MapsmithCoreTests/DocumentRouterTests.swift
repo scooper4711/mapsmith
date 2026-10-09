@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import FlipMapCore
+@testable import MapsmithCore
 
 @MainActor @Suite struct DocumentRouterTests {
     let router = DocumentRouter()
