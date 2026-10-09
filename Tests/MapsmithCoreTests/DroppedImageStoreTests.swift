@@ -22,6 +22,11 @@ import UniformTypeIdentifiers
         #expect(names == ["Dropped Map.tiff", "Dropped Map 2.tiff", "Dropped Map 3.tiff"])
     }
 
+    @Test func keepsDropsInTheCachesFolder() {
+        let path = DroppedImageStore.standard.directory.path
+        #expect(path.contains("/Caches/") && path.hasSuffix("/Dropped Maps"))
+    }
+
     @Test func unusableNamesFallBackToTheDefault() throws {
         #expect(try store.save(data, suggestedName: "  .png", type: .png).lastPathComponent == "Dropped Map.png")
         #expect(try store.save(data, suggestedName: "a/b:c", type: .jpeg).lastPathComponent == "a-b-c.jpeg")
