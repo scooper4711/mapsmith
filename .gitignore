@@ -8,3 +8,4 @@ tmp/
 
 # Copyrighted sample maps used for local testing only — never commit.
 TestData/
+coverage/
