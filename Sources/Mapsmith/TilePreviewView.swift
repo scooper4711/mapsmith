@@ -57,11 +57,15 @@ struct TileOverlay: View {
             Rectangle().fill(.black.opacity(0.35))
                 .mask {
                     Rectangle().overlay(alignment: .topLeading) {
-                        ForEach(plan.tiles.indices, id: \.self) { index in
-                            Rectangle().frame(width: plan.tiles[index].width * scale,
-                                              height: plan.tiles[index].height * scale)
-                                .offset(x: plan.tiles[index].minX * scale, y: plan.tiles[index].minY * scale)
-                                .blendMode(.destinationOut)
+                        // Top-leading, so each page's hole starts at its own corner: the overlay's implicit stack
+                        // would center smaller edge pages inside the largest one and shade along the cut lines.
+                        ZStack(alignment: .topLeading) {
+                            ForEach(plan.tiles.indices, id: \.self) { index in
+                                Rectangle().frame(width: plan.tiles[index].width * scale,
+                                                  height: plan.tiles[index].height * scale)
+                                    .offset(x: plan.tiles[index].minX * scale, y: plan.tiles[index].minY * scale)
+                                    .blendMode(.destinationOut)
+                            }
                         }
                     }
                     .compositingGroup()
