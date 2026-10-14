@@ -17,10 +17,10 @@ one inch per square, and prints them, ready to trim and tape together.
 
 It is free and open source, and it works with any PDF or image you open; it contains no maps of its own.
 
-![The Mapsmith window: a world map split into ten numbered pages, with the detected grid scale and the page count in the inspector](docs/images/screenshot.png)
+![The Mapsmith window: a gridded map of the Inner Sea split into four numbered pages, with the detected grid of 100 pixels per square and the page count in the inspector](docs/images/screenshot.png)
 
-*A world map with a 10° grid, split into ten A4 pages at one inch per square. The map is public
-domain (see [Sample map](#sample-map)).*
+*Paizo's map of the Inner Sea with a square grid drawn over it, detected at 100 pixels per square and split
+into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
 
 ## Features
 
@@ -111,15 +111,23 @@ The requirements and design are in [`docs/specs`](docs/specs).
 
 ## Sample map
 
-The map in the screenshot is NASA Earth Observatory's
-[Whole world – land and oceans](https://commons.wikimedia.org/wiki/File:Whole_world_-_land_and_oceans.jpg)
-(public domain), with a 10° latitude and longitude grid drawn over it so each cell is square.
+The map in the screenshot is Paizo's labeled world map of Golarion, published on the Paizo blog in
+[Intro to Iblydos](https://paizo.com/blog/intro-to-iblydos) and used under Paizo's
+[Community Use Policy](https://paizo.com/licenses/communityuse). A square grid is drawn over it so Mapsmith has
+squares to find.
 
 ## License
 
 Mapsmith is released under the [MIT license](LICENSE). It uses no third-party libraries.
 
-## Trademarks
+## Paizo notices
 
-Pathfinder, Starfinder, Flip-Mat and Paizo are trademarks of Paizo Inc. Mapsmith is an independent fan
-project. It is not published, endorsed, or specifically approved by Paizo, and it contains no Paizo content.
+Mapsmith uses trademarks and/or copyrights owned by Paizo Inc., used under Paizo's Community Use Policy
+([paizo.com/licenses/communityuse](https://paizo.com/licenses/communityuse)). We are expressly prohibited from
+charging you to use or access this content. Mapsmith is not published, endorsed, or specifically approved by
+Paizo. For more information about Paizo Inc. and Paizo products, visit [paizo.com](https://paizo.com).
+
+Pathfinder and Starfinder are registered trademarks and copyrights of Paizo Inc. Flip-Mat is a trademark of
+Paizo Inc. The app itself contains no Paizo content; the sample map appears only in this README.
+
+To report a problem or ask a question, open an [issue](https://github.com/scooper4711/mapsmith/issues).
