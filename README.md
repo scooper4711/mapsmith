@@ -8,14 +8,14 @@
 [![Platform](https://img.shields.io/badge/platform-macOS%2015%2B-informational)](#requirements)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-A Mac app that prints battle maps at true scale, one grid square per inch, on ordinary printer paper.
+Have you tried printing a Flip-Mat PDF or an adventure's map at home? The map is far bigger than a sheet of
+paper, and printing it "to fit" shrinks the squares until your miniatures no longer fit them.
 
-A Flip-Mat PDF or a map from an adventure is far bigger than a sheet of paper, and printing it "to fit" shrinks
-the squares until miniatures no longer fit them. Mapsmith finds the map's grid, splits the map into pages
-that fit your printer's printable area at exactly one inch per square, and prints them, ready to trim and
-tape together.
+Mapsmith is a Mac app that prints battle maps at true scale, one grid square per inch, on ordinary printer
+paper. It finds the map's grid, splits the map into pages that fit your printer's printable area at exactly
+one inch per square, and prints them, ready to trim and tape together.
 
-It is free, and it works with any PDF or image you open; it contains no maps of its own.
+It is free and open source, and it works with any PDF or image you open; it contains no maps of its own.
 
 ![The Mapsmith window: a world map split into ten numbered pages, with the detected grid scale and the page count in the inspector](docs/images/screenshot.png)
 
