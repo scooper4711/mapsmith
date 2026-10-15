@@ -33,7 +33,7 @@ into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
   (1.2 or later). Pick one and Scrollkeeper downloads it, if it is not on disk already, and opens it here.
   Mapsmith never signs in to Paizo itself.
 - **Select** a map: its grid is detected and it is split into pages that fit the printable area of the
-  current printer and paper (**File › Page Setup…**). Edge strips thinner than 0.5 in are trimmed rather
+  current printer and paper (**File › Page Setup…**). Edge strips thinner than 1 in are trimmed rather
   than printed on their own pages, and the map is turned 90° when that uses fewer pages.
 - **Print** the pages directly (⌘P), or **Export** them as a PDF (⌘E).
 

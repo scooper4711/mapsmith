@@ -34,7 +34,7 @@ final class AppModel {
 
     /// User-entered pixels per inch; overrides detection when set.
     var manualPixelsPerInch: Double?
-    var minimumSliverInches: Double = 0.5
+    var minimumSliverInches: Double = 1
 
     /// Each window has its own page setup, starting from the one most recently chosen in any window.
     let printInfo = NSPrintInfo.shared.copy() as? NSPrintInfo ?? .shared
