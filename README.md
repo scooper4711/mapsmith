@@ -28,6 +28,10 @@ into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
   large image in the document is shown as a thumbnail. Each file opens in its own window, and
   **File › Open Recent** lists the latest ones. Images dragged straight out of another app, such as a map
   from [Pluck](https://github.com/scooper4711/pluck), can be dropped too.
+- **Open from Scrollkeeper** (⇧⌘O): type part of a map's name to search the Flip-Mats, Flip-Tiles and other
+  maps you own on paizo.com, as listed by [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
+  (1.2 or later). Pick one and Scrollkeeper downloads it, if it is not on disk already, and opens it here.
+  Mapsmith never signs in to Paizo itself.
 - **Select** a map: its grid is detected and it is split into pages that fit the printable area of the
   current printer and paper (**File › Page Setup…**). Edge strips thinner than 0.5 in are trimmed rather
   than printed on their own pages, and the map is turned 90° when that uses fewer pages.
@@ -109,6 +113,7 @@ finding maps in PDFs, planning and exporting pages), and `Sources/Mapsmith` is t
 |---|---|
 | Images dropped from other apps | `~/Library/Caches/com.github.scooper4711.Mapsmith/Dropped Maps/` |
 | Exported pages | wherever you save them, as PDF files |
+| Maps opened from Scrollkeeper | Scrollkeeper's downloads folder; Mapsmith only reads Scrollkeeper's map list |
 
 ## Documentation
 
