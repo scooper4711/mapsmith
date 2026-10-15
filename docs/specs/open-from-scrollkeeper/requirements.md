@@ -13,13 +13,19 @@ in Finder. The handoff contract is owned by Scrollkeeper:
 - R1.3 Typing narrows the list to titles whose title or series contains every
   typed word, ignoring case and accents. An empty search shows every title.
 - R1.4 The sheet says when Scrollkeeper last updated the list.
+- R1.5 The best match is selected as the user types, so Return opens it.
 
 ## R2 Opening a map
 - R2.1 Choosing a title (double-click, or Return on the selection) closes the
   sheet and asks Scrollkeeper to open it in Mapsmith.
 - R2.2 Scrollkeeper downloads the title when needed and sends its PDFs and
   images back; each opens in its own window (multiple-documents R1).
-- R2.3 Mapsmith never signs in to Paizo or downloads files itself.
+- R2.3 Titles that are not on disk yet show a cloud icon, and the open button
+  reads "Download and Open" while one is selected.
+- R2.4 Clicking the cloud asks Scrollkeeper, staying in the background, to
+  download the title without opening it. A spinner replaces the cloud until
+  Scrollkeeper's list shows the title downloaded; then neither is shown.
+- R2.5 Mapsmith never signs in to Paizo or downloads files itself.
 
 ## R3 When the list is not available
 - R3.1 When Scrollkeeper is not installed, the sheet says so and links to its

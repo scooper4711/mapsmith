@@ -10,15 +10,21 @@ public struct ScrollkeeperMapIndex: Decodable, Equatable, Sendable {
         public var title: String
         public var series: String?
         public var number: Int?
+        /// Whether an up-to-date copy is on disk; nil when Scrollkeeper is too old to say.
+        public var downloaded: Bool?
 
-        public init(sku: String, title: String, series: String? = nil, number: Int? = nil) {
+        public init(sku: String, title: String, series: String? = nil, number: Int? = nil, downloaded: Bool? = nil) {
             self.sku = sku
             self.title = title
             self.series = series
             self.number = number
+            self.downloaded = downloaded
         }
 
         public var id: String { sku }
+
+        /// True only when Scrollkeeper says the title must be downloaded before it can be opened.
+        public var needsDownload: Bool { downloaded == false }
 
         /// Series and number for display under the title, such as "Flip-Mat Classics #4"; empty when unknown.
         public var subtitle: String {

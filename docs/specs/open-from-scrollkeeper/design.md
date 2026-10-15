@@ -4,8 +4,12 @@
 Scrollkeeper's `docs/specs/app-handoff/design.md` defines both halves:
 
 - the map index, `~/Library/Application Support/Scrollkeeper/Shared/maps.json`
-  (`formatVersion`, `generatedAt`, `titles[{sku, title, series?, number?}]`);
-- the request, `scrollkeeper://open?sku=<SKU>&app=mapsmith`.
+  (`formatVersion`, `generatedAt`, `titles[{sku, title, series?, number?, downloaded}]`);
+- the requests, `scrollkeeper://open?sku=<SKU>&app=mapsmith` and
+  `scrollkeeper://download?…`, which downloads without opening.
+
+`downloaded` is optional here: an older Scrollkeeper leaves it out, and then no
+cloud icons are shown.
 
 Mapsmith keeps its own `Codable` mirror of the index and does not depend on
 ScrollkeeperKit. It reads `formatVersion` first and refuses versions it does
@@ -20,8 +24,11 @@ not know.
   constant, `ScrollkeeperLibrary.defaultIndexURL`.
 - `ScrollkeeperLibrary` also builds the request URL and asks Scrollkeeper to
   open a title or to come forward.
+- `PendingDownloads` holds the titles whose cloud was clicked. While it is not
+  empty the sheet rereads the list every second, and `settle(with:)` drops the
+  titles now downloaded.
 - `ApplicationLauncher` is the protocol for "is this app installed", "open
-  this URL" and "launch this app". The app supplies an `NSWorkspace` version;
+  this URL" (in front or in the background) and "launch this app". The app supplies an `NSWorkspace` version;
   tests supply a fake, as with `RecentDocumentStore`.
 
 ## App
