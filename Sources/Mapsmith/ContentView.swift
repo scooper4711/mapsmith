@@ -23,6 +23,9 @@ struct ContentView: View {
         .onDrop(of: MapDrop.acceptedTypes, isTargeted: nil) { providers in
             MapDrop.open(providers, with: router)
         }
+        .sheet(isPresented: $model.showsScrollkeeperSearch) {
+            ScrollkeeperSearchSheet(library: ScrollkeeperLibrary(launcher: WorkspaceLauncher()))
+        }
         .alert("Something went wrong", isPresented: Binding(
             get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } }
         )) {
@@ -52,8 +55,13 @@ struct MapListView: View {
     var body: some View {
         @Bindable var model = model
         if model.items.isEmpty {
-            ContentUnavailableView("No File Open", systemImage: "map",
-                                   description: Text("Open or drop a PDF or image of a battle map."))
+            ContentUnavailableView {
+                Label("No File Open", systemImage: "map")
+            } description: {
+                Text("Open or drop a PDF or image of a battle map.")
+            } actions: {
+                Button("Open from Scrollkeeper…") { model.showsScrollkeeperSearch = true }
+            }
         } else {
             List(model.items, selection: $model.selectedItemID) { item in
                 VStack(alignment: .leading, spacing: 6) {
