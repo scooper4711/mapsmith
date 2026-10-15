@@ -17,6 +17,14 @@ enum TestSupport {
 
     static var hasSamplePDFs: Bool { !samplePDFs.isEmpty }
 
+    /// Writes a Scrollkeeper map index in its wire format to a new temporary file.
+    static func writeMapIndex(version: Int = 1, titles: [[String: Any]]) throws -> URL {
+        let index: [String: Any] = ["formatVersion": version, "generatedAt": "2026-10-15T18:00:00Z", "titles": titles]
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("maps-\(UUID().uuidString).json")
+        try JSONSerialization.data(withJSONObject: index).write(to: url)
+        return url
+    }
+
     /// A white RGB image with black grid lines every `spacing` pixels, over optional noise.
     static func gridImage(width: Int, height: Int, spacing: CGFloat, lineWidth: CGFloat = 1,
                           noise: Bool = false) -> CGImage {
