@@ -17,7 +17,8 @@ struct MapsmithApp: App {
     }
 }
 
-/// File-menu commands: open, open recent, export and print. Export and print act on the frontmost window.
+/// File-menu commands: open, open from Scrollkeeper, open recent, export and print.
+/// Export and print act on the frontmost window.
 struct AppCommands: Commands {
     let router: DocumentRouter
     @ObservedObject var recents: RecentDocuments
@@ -27,6 +28,9 @@ struct AppCommands: Commands {
         CommandGroup(replacing: .newItem) {
             Button("Open…") { router.open(OpenPanel.chooseFiles()) }
                 .keyboardShortcut("o")
+            Button("Open from Scrollkeeper…") { model?.showsScrollkeeperSearch = true }
+                .keyboardShortcut("o", modifiers: [.command, .shift])
+                .disabled(model == nil)
             Menu("Open Recent") {
                 ForEach(recents.urls, id: \.self) { url in
                     Button(url.lastPathComponent) { router.open([url]) }
