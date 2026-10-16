@@ -19,7 +19,7 @@ It is free and open source, and it works with any PDF or image you open; it cont
 
 **Print any Paizo map you own, on demand.** With [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
 installed, press ⇧⌘O, type a few letters of the map's name and press Return. Every Flip-Mat, Flip-Tiles set,
-Map Pack and Poster Map in your paizo.com library is there, whether or not you have ever downloaded it.
+Map Pack and Poster Map you own in your paizo.com library is there, whether or not you have ever downloaded it.
 Scrollkeeper fetches the map from Paizo if needed, and it opens in Mapsmith ready to print at true scale. No
 digging through your downloads folder, no hunting for the right zip on paizo.com. Saw a Flip-Mat in an
 adventure five minutes before the session? It's on the table before your players finish their snacks.
