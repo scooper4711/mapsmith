@@ -17,6 +17,15 @@ one inch per square, and prints them, ready to trim and tape together.
 
 It is free and open source, and it works with any PDF or image you open; it contains no maps of its own.
 
+**Print any Paizo map you own, on demand.** With [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
+installed, press ⇧⌘O, type a few letters of the map's name and press Return. Every Flip-Mat, Flip-Tiles set,
+Map Pack and Poster Map you own in your paizo.com library is there, whether or not you have ever downloaded it.
+Scrollkeeper fetches the map from Paizo if needed, and it opens in Mapsmith ready to print at true scale. No
+digging through your downloads folder, no hunting for the right zip on paizo.com. Saw a Flip-Mat in an
+adventure five minutes before the session? It's on the table before your players finish their snacks.
+
+![Mapsmith's Open from Scrollkeeper sheet with "forest" typed: the matching Flip-Mats and Map Packs from the user's library, with a cloud beside those not downloaded yet](docs/images/open-from-scrollkeeper.png)
+
 ![The Mapsmith window: a gridded map of the Inner Sea split into four numbered pages, with the detected grid of 100 pixels per square and the page count in the inspector](docs/images/screenshot.png)
 
 *Paizo's map of the Inner Sea with a square grid drawn over it, detected at 100 pixels per square and split
@@ -30,8 +39,9 @@ into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
   from [Pluck](https://github.com/scooper4711/pluck), can be dropped too.
 - **Open from Scrollkeeper** (⇧⌘O): type part of a map's name to search the Flip-Mats, Flip-Tiles and other
   maps you own on paizo.com, as listed by [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
-  (1.2 or later). Pick one and Scrollkeeper downloads it, if it is not on disk already, and opens it here.
-  Mapsmith never signs in to Paizo itself.
+  (1.2 or later). A cloud marks the maps not downloaded yet: click it to download one in the background, or
+  press Return to download and open it in one go. For a map pack Scrollkeeper sends the PDF, which has twice
+  the resolution of the pack's JPGs. Mapsmith never signs in to Paizo itself; Scrollkeeper does the downloading.
 - **Select** a map: its grid is detected and it is split into pages that fit the printable area of the
   current printer and paper (**File › Page Setup…**). Edge strips thinner than 1 in are trimmed rather
   than printed on their own pages, and the map is turned 90° when that uses fewer pages.
