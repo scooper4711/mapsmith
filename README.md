@@ -24,6 +24,8 @@ Scrollkeeper fetches the map from Paizo if needed, and it opens in Mapsmith read
 digging through your downloads folder, no hunting for the right zip on paizo.com. Saw a Flip-Mat in an
 adventure five minutes before the session? It's on the table before your players finish their snacks.
 
+![Mapsmith's Open from Scrollkeeper sheet with "forest" typed: the matching Flip-Mats and Map Packs from the user's library, with a cloud beside those not downloaded yet](docs/images/open-from-scrollkeeper.png)
+
 ![The Mapsmith window: a gridded map of the Inner Sea split into four numbered pages, with the detected grid of 100 pixels per square and the page count in the inspector](docs/images/screenshot.png)
 
 *Paizo's map of the Inner Sea with a square grid drawn over it, detected at 100 pixels per square and split
