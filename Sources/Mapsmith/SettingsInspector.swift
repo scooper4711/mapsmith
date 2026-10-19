@@ -17,9 +17,12 @@ struct SettingsInspector: View {
 
             Section("Scale") {
                 scaleDescription
-                TextField("Pixels per square", value: $model.manualPixelsPerInch,
-                          format: .number.precision(.fractionLength(0...2)),
-                          prompt: Text(detectedScale))
+                if model.loadedMap != nil {
+                    LabeledContent("Image size", value: pixels(model.mapPixelSize))
+                }
+                DeferredNumberField(title: "Pixels per square", value: model.manualPixelsPerInch,
+                                    prompt: detectedScale) { model.setScale($0.map(ScaleEntry.pixelsPerSquare)) }
+                if model.loadedMap != nil { squareFields }
                 if model.manualPixelsPerInch != nil {
                     Button("Use Detected Scale") { model.manualPixelsPerInch = nil }
                 }
@@ -56,6 +59,21 @@ struct SettingsInspector: View {
         }
     }
 
+    /// The scale as 1-inch squares across and down; the detected count is the placeholder.
+    @ViewBuilder private var squareFields: some View {
+        let size = model.mapPixelSize
+        let entered = model.manualPixelsPerInch.map { ScaleEntry.squares(mapSize: size, pixelsPerInch: $0) }
+        let detected = model.scaleSource?.pixelsPerInch.map { ScaleEntry.squares(mapSize: size, pixelsPerInch: $0) }
+        DeferredNumberField(title: "Squares across", value: entered.map { Double($0.width) },
+                            prompt: count(detected?.width)) { model.setScale($0.map(ScaleEntry.squaresAcross)) }
+        DeferredNumberField(title: "Squares down", value: entered.map { Double($0.height) },
+                            prompt: count(detected?.height)) { model.setScale($0.map(ScaleEntry.squaresDown)) }
+    }
+
+    private func count(_ squares: CGFloat?) -> String {
+        squares.map { String(format: "%.1f", $0) } ?? ""
+    }
+
     /// The detected scale, shown as the manual field's placeholder.
     private var detectedScale: String {
         model.scaleSource?.pixelsPerInch.map { String(format: "%.1f", $0) } ?? "e.g. 300"
@@ -72,6 +90,10 @@ struct SettingsInspector: View {
             Text("Print at 100% scale. Trim each page's white border where pages meet.")
                 .font(.caption).foregroundStyle(.secondary)
         }
+    }
+
+    private func pixels(_ size: CGSize) -> String {
+        "\(Int(size.width)) × \(Int(size.height)) px"
     }
 
     private func inches(_ size: CGSize) -> String {

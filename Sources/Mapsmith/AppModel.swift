@@ -49,11 +49,25 @@ final class AppModel {
         manualPixelsPerInch.map { CGFloat($0) } ?? scaleSource?.pixelsPerInch
     }
 
+    /// The selected map's size in pixels; zero while none is loaded.
+    var mapPixelSize: CGSize {
+        loadedMap.map { CGSize(width: $0.image.width, height: $0.image.height) } ?? .zero
+    }
+
+    /// Sets the scale as the user entered it; nil goes back to the detected scale. An entry that
+    /// gives no usable scale is ignored.
+    func setScale(_ entry: ScaleEntry?) {
+        guard let entry else {
+            manualPixelsPerInch = nil
+            return
+        }
+        if let pixels = entry.pixelsPerInch(mapSize: mapPixelSize) { manualPixelsPerInch = pixels }
+    }
+
     var plan: TilePlan? {
-        guard let map = loadedMap, let ppi = pixelsPerInch, ppi > 0 else { return nil }
+        guard loadedMap != nil, let ppi = pixelsPerInch, ppi > 0 else { return nil }
         let settings = TileSettings(page: page, minimumSliverInches: CGFloat(minimumSliverInches))
-        return TilePlanner.plan(mapSize: CGSize(width: map.image.width, height: map.image.height),
-                                pixelsPerInch: ppi, settings: settings)
+        return TilePlanner.plan(mapSize: mapPixelSize, pixelsPerInch: ppi, settings: settings)
     }
 
     var printerName: String { PrintSetup.printerName(of: printInfo) }
