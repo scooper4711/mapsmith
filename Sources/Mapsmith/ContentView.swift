@@ -4,6 +4,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(AppModel.self) private var model
     @Environment(DocumentRouter.self) private var router
+    @Environment(ScrollkeeperBridge.self) private var scrollkeeper
     @State private var showsInspector = true
 
     var body: some View {
@@ -24,7 +25,7 @@ struct ContentView: View {
             MapDrop.open(providers, with: router)
         }
         .sheet(isPresented: $model.showsScrollkeeperSearch) {
-            ScrollkeeperSearchSheet(library: ScrollkeeperLibrary(launcher: WorkspaceLauncher()))
+            ScrollkeeperSearchSheet(bridge: scrollkeeper)
         }
         .alert("Something went wrong", isPresented: Binding(
             get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } }

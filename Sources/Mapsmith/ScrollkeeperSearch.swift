@@ -4,13 +4,13 @@ import SwiftUI
 
 /// File ▸ Open from Scrollkeeper…: search the maps the user owns and ask Scrollkeeper for one.
 struct ScrollkeeperSearchSheet: View {
-    let library: ScrollkeeperLibrary
+    let bridge: ScrollkeeperBridge
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
-    @State private var state = ScrollkeeperLibrary.State.noCatalog
     @State private var query = ""
-    @State private var selection: ScrollkeeperMapIndex.Entry.ID?
-    @State private var pending = PendingDownloads()
+    @State private var selection: ScrollkeeperIndex.Entry.ID?
+    /// Set when Scrollkeeper takes a while to answer, so the sheet can say what may be wrong.
+    @State private var isSlow = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -21,62 +21,87 @@ struct ScrollkeeperSearchSheet: View {
                 Spacer()
                 Button("Cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button(selectedEntry?.needsDownload == true ? "Download and Open" : "Open") { openSelection() }
+                Button(selectedEntry?.downloaded == false ? "Download and Open" : "Open") { openSelection() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(selectedEntry == nil)
             }
         }
         .padding(20)
         .frame(width: 520, height: 460)
-        .onAppear { state = library.state() }
-        .task(id: pending) { await watchPendingDownloads() }
-    }
-
-    private var loadedIndex: ScrollkeeperMapIndex? {
-        if case let .loaded(index) = state { index } else { nil }
-    }
-
-    private var selectedEntry: ScrollkeeperMapIndex.Entry? {
-        loadedIndex?.titles.first { $0.id == selection }
-    }
-
-    /// Rereads the map list while downloads started here are running, so their cloud icons go
-    /// away as Scrollkeeper finishes them.
-    private func watchPendingDownloads() async {
-        while !pending.isEmpty, !Task.isCancelled {
-            try? await Task.sleep(for: .seconds(1))
-            state = library.state()
-            if let index = loadedIndex { pending.settle(with: index) }
+        .onAppear(perform: bridge.requestIndex)
+        .onChange(of: isOpening) { if isOpening { dismiss() } }
+        .task(id: bridge.state) {
+            isSlow = false
+            guard bridge.state == .waiting else { return }
+            try? await Task.sleep(for: .seconds(15))
+            isSlow = !Task.isCancelled
         }
     }
 
+    private var loadedIndex: ScrollkeeperIndex? {
+        if case let .loaded(index) = bridge.state { index } else { nil }
+    }
+
+    private var selectedEntry: ScrollkeeperIndex.Entry? {
+        loadedIndex?.titles.first { $0.id == selection }
+    }
+
+    /// True once a title asked to open is downloaded and its files are on their way.
+    private var isOpening: Bool {
+        bridge.requests.values.contains { $0.opens && $0.phase == .done }
+    }
+
     @ViewBuilder private var content: some View {
-        switch state {
+        switch bridge.state {
         case let .loaded(index):
             TextField("Search your maps", text: $query)
                 .textFieldStyle(.roundedBorder)
                 // The best match is chosen as the user types, so Return opens it.
                 .onChange(of: query, initial: true) { selection = index.search(query).first?.id }
             results(index.search(query))
+        case .idle, .waiting:
+            waiting
         case .notInstalled:
             unavailable("Scrollkeeper Isn't Installed", symbol: "books.vertical",
                         message: "Scrollkeeper downloads the maps you own on paizo.com.") {
-                Button("Get Scrollkeeper") { openURL(ScrollkeeperLibrary.downloadPage) }
-            }
-        case .noCatalog:
-            unavailable("No Library Yet", symbol: "person.crop.circle.badge.questionmark",
-                        message: "Open Scrollkeeper and sign in to load your library, then try again.") {
-                Button("Open Scrollkeeper") { library.launch() }
+                Button("Get Scrollkeeper") { openURL(ScrollkeeperBridge.downloadPage) }
             }
         case .unsupportedVersion:
             unavailable("Update Mapsmith", symbol: "arrow.down.circle",
                         message: "Scrollkeeper's list of maps is newer than this version of Mapsmith understands.") {
                 EmptyView()
             }
+        case .unreadable:
+            unavailable("Couldn't Read the List", symbol: "exclamationmark.triangle",
+                        message: "Scrollkeeper's list of maps couldn't be read. Try again.") {
+                Button("Try Again", action: bridge.requestIndex)
+            }
+        case let .failed(reason):
+            unavailable("Scrollkeeper Couldn't Send Your Maps", symbol: "exclamationmark.triangle",
+                        message: reason) {
+                Button("Open Scrollkeeper", action: bridge.launchScrollkeeper)
+                Button("Try Again", action: bridge.requestIndex)
+            }
         }
     }
 
-    private func results(_ entries: [ScrollkeeperMapIndex.Entry]) -> some View {
+    @ViewBuilder private var waiting: some View {
+        if isSlow {
+            unavailable("Scrollkeeper Hasn't Answered", symbol: "hourglass",
+                        message: "Scrollkeeper may still be loading, or need you to sign in.") {
+                Button("Open Scrollkeeper", action: bridge.launchScrollkeeper)
+                Button("Try Again", action: bridge.requestIndex)
+            }
+        } else {
+            VStack(spacing: 10) {
+                ProgressView()
+                Text("Asking Scrollkeeper for your maps…").foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private func results(_ entries: [ScrollkeeperIndex.Entry]) -> some View {
         List(entries, selection: $selection) { entry in
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -90,7 +115,7 @@ struct ScrollkeeperSearchSheet: View {
             }
             .tag(entry.id)
         }
-        .contextMenu(forSelectionType: ScrollkeeperMapIndex.Entry.ID.self) { _ in
+        .contextMenu(forSelectionType: ScrollkeeperIndex.Entry.ID.self) { _ in
         } primaryAction: { chosen in
             selection = chosen.first
             openSelection()
@@ -100,20 +125,27 @@ struct ScrollkeeperSearchSheet: View {
         }
     }
 
-    /// A cloud for titles not on disk yet, which downloads without opening; a spinner while that runs.
-    @ViewBuilder private func downloadStatus(of entry: ScrollkeeperMapIndex.Entry) -> some View {
-        if pending.contains(entry) {
-            ProgressView().controlSize(.small)
+    /// The progress of a title being downloaded, or for one not on disk yet a cloud, which downloads
+    /// without opening.
+    @ViewBuilder private func downloadStatus(of entry: ScrollkeeperIndex.Entry) -> some View {
+        switch bridge.request(for: entry)?.phase {
+        case let .downloading(fraction):
+            ProgressView(value: fraction).frame(width: 90)
                 .help("Scrollkeeper is downloading this map")
-        } else if entry.needsDownload {
-            Button("Download", systemImage: "icloud.and.arrow.down") {
-                pending.insert(entry)
-                library.download(entry)
-            }
+        case .requested:
+            ProgressView().controlSize(.small)
+        case .failed:
+            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+        case .done, nil:
+            if !entry.downloaded { downloadButton(for: entry) }
+        }
+    }
+
+    private func downloadButton(for entry: ScrollkeeperIndex.Entry) -> some View {
+        Button("Download", systemImage: "icloud.and.arrow.down") { bridge.download(entry) }
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
             .help("Not downloaded yet. Click to download it now, or choose Download and Open.")
-        }
     }
 
     private func unavailable(_ title: String, symbol: String, message: String,
@@ -129,17 +161,39 @@ struct ScrollkeeperSearchSheet: View {
     }
 
     @ViewBuilder private var footnote: some View {
-        if let index = loadedIndex {
+        if let request = selectedEntry.flatMap(bridge.request(for:)), let text = Self.describe(request) {
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(request.phase.isFailure ? .red : .secondary)
+                .lineLimit(2)
+        } else if let index = loadedIndex {
             Text("Library as of \(index.generatedAt.formatted(date: .abbreviated, time: .shortened))")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
     }
 
+    private static func describe(_ request: ScrollkeeperRequest) -> String? {
+        switch request.phase {
+        case .requested: "Asking Scrollkeeper…"
+        case let .downloading(fraction): "Scrollkeeper is downloading it: \(Int(fraction * 100))%"
+        case .done: request.opens ? "Opening…" : nil
+        case let .failed(reason): reason
+        }
+    }
+
+    /// A map on disk opens at once; for one that needs downloading the sheet stays to show the progress,
+    /// and closes when its files are on their way.
     private func openSelection() {
         guard let entry = selectedEntry else { return }
-        library.open(entry)
-        dismiss()
+        bridge.open(entry)
+        if entry.downloaded { dismiss() }
+    }
+}
+
+extension ScrollkeeperRequest.Phase {
+    var isFailure: Bool {
+        if case .failed = self { true } else { false }
     }
 }
 
@@ -147,10 +201,6 @@ struct ScrollkeeperSearchSheet: View {
 struct WorkspaceLauncher: ApplicationLauncher {
     func isInstalled(_ bundleIdentifier: String) -> Bool {
         NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) != nil
-    }
-
-    func open(_ url: URL) {
-        NSWorkspace.shared.open(url)
     }
 
     func openInBackground(_ url: URL) {

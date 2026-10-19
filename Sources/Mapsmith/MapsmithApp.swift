@@ -10,6 +10,7 @@ struct MapsmithApp: App {
         // One window per file, as in Preview. Opening a file that already has a window brings it forward.
         WindowGroup(for: URL.self) { $url in
             DocumentWindow(url: url, router: appDelegate.router, recents: appDelegate.recents)
+                .environment(appDelegate.scrollkeeper)
                 .frame(minWidth: 900, minHeight: 600)
         }
         .defaultSize(width: 1300, height: 850)
@@ -72,14 +73,26 @@ enum OpenPanel {
     }
 }
 
-/// Handles files opened from Finder (double-click, drag onto the Dock icon, Open With).
+/// Handles files opened from Finder (double-click, drag onto the Dock icon, Open With), and what
+/// Scrollkeeper hands over: the list of maps, status links and the maps themselves.
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let router = DocumentRouter()
     let recents = RecentDocuments(store: SystemRecentDocuments())
+    let scrollkeeper = ScrollkeeperBridge(launcher: WorkspaceLauncher())
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        router.open(urls)
+        var documents: [URL] = []
+        for url in urls {
+            if ScrollkeeperBridge.isStatusLink(url) {
+                scrollkeeper.receiveStatus(url)
+            } else if ScrollkeeperIndex.isIndexFile(url) {
+                scrollkeeper.receive(url)
+            } else {
+                documents.append(url)
+            }
+        }
+        router.open(documents)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
