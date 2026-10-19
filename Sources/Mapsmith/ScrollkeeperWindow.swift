@@ -3,23 +3,24 @@ import MapsmithCore
 import SwiftUI
 
 /// File ▸ Open from Scrollkeeper…: search the maps the user owns and ask Scrollkeeper for one.
-struct ScrollkeeperSearchSheet: View {
+struct ScrollkeeperWindow: View {
+    static let id = "scrollkeeper"
+
     let bridge: ScrollkeeperBridge
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.openURL) private var openURL
     @State private var query = ""
     @State private var selection: ScrollkeeperIndex.Entry.ID?
-    /// Set when Scrollkeeper takes a while to answer, so the sheet can say what may be wrong.
+    /// Set when Scrollkeeper takes a while to answer, so the window can say what may be wrong.
     @State private var isSlow = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Open from Scrollkeeper").font(.headline)
             content
             HStack {
                 footnote
                 Spacer()
-                Button("Cancel", role: .cancel) { dismiss() }
+                Button("Cancel", role: .cancel) { dismissWindow(id: Self.id) }
                     .keyboardShortcut(.cancelAction)
                 Button(selectedEntry?.downloaded == false ? "Download and Open" : "Open") { openSelection() }
                     .keyboardShortcut(.defaultAction)
@@ -29,7 +30,7 @@ struct ScrollkeeperSearchSheet: View {
         .padding(20)
         .frame(width: 520, height: 460)
         .onAppear(perform: bridge.requestIndex)
-        .onChange(of: isOpening) { if isOpening { dismiss() } }
+        .onChange(of: isOpening) { if isOpening { dismissWindow(id: Self.id) } }
         .task(id: bridge.state) {
             isSlow = false
             guard bridge.state == .waiting else { return }
@@ -182,12 +183,12 @@ struct ScrollkeeperSearchSheet: View {
         }
     }
 
-    /// A map on disk opens at once; for one that needs downloading the sheet stays to show the progress,
+    /// A map on disk opens at once; for one that needs downloading the window stays to show the progress,
     /// and closes when its files are on their way.
     private func openSelection() {
         guard let entry = selectedEntry else { return }
         bridge.open(entry)
-        if entry.downloaded { dismiss() }
+        if entry.downloaded { dismissWindow(id: Self.id) }
     }
 }
 

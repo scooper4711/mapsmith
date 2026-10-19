@@ -42,12 +42,14 @@ into a package.
   Scrollkeeper opens arrive like any Finder open.
 - `Info.plist` declares the `mapsmith` URL scheme and imports Scrollkeeper's
   index type (`io.github.scooper4711.scrollkeeper.index`) as a document type.
-- `AppModel.showsScrollkeeperSearch` drives a `.sheet` on `ContentView`, so the
-  command acts on the frontmost window (R1.5 of multiple-documents). A sheet
-  rather than a separate window, because the app quits when its last window
-  closes, which would happen before Scrollkeeper sends the files back. The
-  sheet reads the bridge from the environment and closes when a request to
-  open reaches `done`.
+- `ScrollkeeperWindow` is a `Window` scene of its own, opened with
+  `openWindow(id:)`, as in Pluck. It is not a sheet: the list and the status
+  links arrive as open events while it is up, and SwiftUI hands each of them a
+  new document window (which then fails to show it as a map) when the
+  frontmost document window has a sheet. The window closes when a request to
+  open reaches `done`, just before the files arrive; the document window the
+  command was chosen from, or the empty launch window, keeps the app from
+  quitting meanwhile.
 
 ## Sandboxing
 Mapsmith is not sandboxed yet. Nothing here reads outside Mapsmith's own
