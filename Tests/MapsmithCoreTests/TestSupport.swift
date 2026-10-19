@@ -17,11 +17,17 @@ enum TestSupport {
 
     static var hasSamplePDFs: Bool { !samplePDFs.isEmpty }
 
-    /// Writes a Scrollkeeper map index in its wire format to a new temporary file.
-    static func writeMapIndex(version: Int = 1, titles: [[String: Any]]) throws -> URL {
+    /// Writes a Scrollkeeper title index in its wire format to a new temporary file.
+    static func writeTitleIndex(version: Int = 1, titles: [[String: Any]]) throws -> URL {
         let index: [String: Any] = ["formatVersion": version, "generatedAt": "2026-10-15T18:00:00Z", "titles": titles]
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("maps-\(UUID().uuidString).json")
-        try JSONSerialization.data(withJSONObject: index).write(to: url)
+        return try writeIndexFile(JSONSerialization.data(withJSONObject: index))
+    }
+
+    /// Writes the bytes to a new temporary file with the title index's extension.
+    static func writeIndexFile(_ data: Data) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appending(path: "\(UUID().uuidString).\(ScrollkeeperIndex.fileExtension)")
+        try data.write(to: url)
         return url
     }
 
