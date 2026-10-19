@@ -27,10 +27,12 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/$EXECUTABLE"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp Resources/container-migration.plist "$APP/Contents/Resources/container-migration.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" -c "Set :CFBundleVersion $VERSION" \
     "$APP/Contents/Info.plist"
-# Ad-hoc signature: enough to run locally; Gatekeeper still asks on other Macs.
-codesign --force --sign - "$APP"
+# Ad-hoc signature: enough to run locally; Gatekeeper still asks on other Macs. The entitlements turn on the
+# App Sandbox.
+codesign --force --sign - --entitlements Resources/Mapsmith.entitlements "$APP"
 echo "Built $APP ($VERSION)"
 
 if [[ "${1:-}" == "--install" ]]; then
