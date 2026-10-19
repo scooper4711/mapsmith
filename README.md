@@ -121,7 +121,7 @@ finding maps in PDFs, planning and exporting pages), and `Sources/Mapsmith` is t
 
 | What | Where |
 |---|---|
-| Images dropped from other apps | `~/Library/Caches/com.github.scooper4711.Mapsmith/Dropped Maps/` |
+| Images dropped from other apps | `~/Library/Caches/io.github.scooper4711.Mapsmith/Dropped Maps/` |
 | Exported pages | wherever you save them, as PDF files |
 | Maps opened from Scrollkeeper | Scrollkeeper's downloads folder; Mapsmith only reads Scrollkeeper's map list |
 

@@ -4,7 +4,7 @@
 <dict>
     <key>Move</key>
     <array>
-        <string>${Library}/Preferences/com.github.scooper4711.Mapsmith.plist</string>
+        <string>${Library}/Preferences/io.github.scooper4711.Mapsmith.plist</string>
     </array>
 </dict>
 </plist>

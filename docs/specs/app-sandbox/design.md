@@ -8,8 +8,8 @@
 - `scripts/build-app.sh` signs ad hoc with the entitlements and copies
   `Resources/container-migration.plist` into the bundle's Resources. On the
   first sandboxed launch macOS moves the preferences
-  (`com.github.scooper4711.Mapsmith.plist`, window layouts only) into
-  `~/Library/Containers/com.github.scooper4711.Mapsmith`.
+  (`io.github.scooper4711.Mapsmith.plist`, window layouts only) into
+  `~/Library/Containers/io.github.scooper4711.Mapsmith`.
 - `DroppedImageStore` writes dropped images under `temporaryDirectory`, which
   is inside the container.
 - SwiftUI doesn't restore document windows in the sandbox: it would need a
