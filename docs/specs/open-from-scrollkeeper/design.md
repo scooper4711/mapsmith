@@ -52,5 +52,6 @@ into a package.
   quitting meanwhile.
 
 ## Sandboxing
-Mapsmith is not sandboxed yet. Nothing here reads outside Mapsmith's own
-files, so sandboxing needs no change to this feature.
+Mapsmith runs in the App Sandbox (see `app-sandbox`). Launch Services gives it
+access to the list and the maps Scrollkeeper opens in it, so this feature
+needs nothing more.
