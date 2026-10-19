@@ -23,9 +23,6 @@ struct ContentView: View {
         .onDrop(of: MapDrop.acceptedTypes, isTargeted: nil) { providers in
             MapDrop.open(providers, with: router)
         }
-        .sheet(isPresented: $model.showsScrollkeeperSearch) {
-            ScrollkeeperSearchSheet(library: ScrollkeeperLibrary(launcher: WorkspaceLauncher()))
-        }
         .alert("Something went wrong", isPresented: Binding(
             get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } }
         )) {
@@ -51,6 +48,7 @@ struct ContentView: View {
 /// Sidebar: a thumbnail for every map in the open file.
 struct MapListView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         @Bindable var model = model
@@ -60,7 +58,7 @@ struct MapListView: View {
             } description: {
                 Text("Open or drop a PDF or image of a battle map.")
             } actions: {
-                Button("Open from Scrollkeeper…") { model.showsScrollkeeperSearch = true }
+                Button("Open from Scrollkeeper…") { openWindow(id: ScrollkeeperWindow.id) }
             }
         } else {
             List(model.items, selection: $model.selectedItemID) { item in

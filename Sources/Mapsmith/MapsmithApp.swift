@@ -14,6 +14,13 @@ struct MapsmithApp: App {
         }
         .defaultSize(width: 1300, height: 850)
         .commands { AppCommands(router: appDelegate.router, recents: appDelegate.recents) }
+
+        // A window of its own, not a sheet: the links and the list Scrollkeeper sends arrive while it is
+        // open, and SwiftUI gives them a new document window when the frontmost one has a sheet up.
+        Window("Open from Scrollkeeper", id: ScrollkeeperWindow.id) {
+            ScrollkeeperWindow(bridge: appDelegate.scrollkeeper)
+        }
+        .windowResizability(.contentSize)
     }
 }
 
@@ -23,14 +30,14 @@ struct AppCommands: Commands {
     let router: DocumentRouter
     @ObservedObject var recents: RecentDocuments
     @FocusedValue(\.documentModel) private var model
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
             Button("Open…") { router.open(OpenPanel.chooseFiles()) }
                 .keyboardShortcut("o")
-            Button("Open from Scrollkeeper…") { model?.showsScrollkeeperSearch = true }
+            Button("Open from Scrollkeeper…") { openWindow(id: ScrollkeeperWindow.id) }
                 .keyboardShortcut("o", modifiers: [.command, .shift])
-                .disabled(model == nil)
             Menu("Open Recent") {
                 ForEach(recents.urls, id: \.self) { url in
                     Button(url.lastPathComponent) { router.open([url]) }
@@ -72,14 +79,26 @@ enum OpenPanel {
     }
 }
 
-/// Handles files opened from Finder (double-click, drag onto the Dock icon, Open With).
+/// Handles files opened from Finder (double-click, drag onto the Dock icon, Open With), and what
+/// Scrollkeeper hands over: the list of maps, status links and the maps themselves.
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let router = DocumentRouter()
     let recents = RecentDocuments(store: SystemRecentDocuments())
+    let scrollkeeper = ScrollkeeperBridge(launcher: WorkspaceLauncher())
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        router.open(urls)
+        var documents: [URL] = []
+        for url in urls {
+            if ScrollkeeperBridge.isStatusLink(url) {
+                scrollkeeper.receiveStatus(url)
+            } else if ScrollkeeperIndex.isIndexFile(url) {
+                scrollkeeper.receive(url)
+            } else {
+                documents.append(url)
+            }
+        }
+        router.open(documents)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }

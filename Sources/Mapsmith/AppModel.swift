@@ -29,8 +29,6 @@ final class AppModel {
     private(set) var scaleSource: ScaleSource?
     private(set) var isBusy = false
     var errorMessage: String?
-    /// Shows File ▸ Open from Scrollkeeper… on this window.
-    var showsScrollkeeperSearch = false
 
     /// User-entered pixels per inch; overrides detection when set.
     var manualPixelsPerInch: Double?

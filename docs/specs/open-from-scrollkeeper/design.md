@@ -1,47 +1,56 @@
 # Open from Scrollkeeper: design
 
 ## Contract
-Scrollkeeper's `docs/specs/app-handoff/design.md` defines both halves:
+Scrollkeeper's `docs/specs/app-handoff/design.md` defines all of it:
 
-- the map index, `~/Library/Application Support/Scrollkeeper/Shared/maps.json`
-  (`formatVersion`, `generatedAt`, `titles[{sku, title, series?, number?, downloaded}]`);
+- the index request, `scrollkeeper://index?app=mapsmith`, which Scrollkeeper
+  answers by opening a title index file (`mapsmith.scrollkeeperindex`) with
+  Mapsmith (`formatVersion`, `generatedAt`,
+  `titles[{sku, title, kind, series?, number?, downloaded}]`, maps only);
 - the requests, `scrollkeeper://open?sku=<SKU>&app=mapsmith` and
-  `scrollkeeper://download?…`, which downloads without opening.
+  `scrollkeeper://download?…`, which downloads without opening;
+- the status links, `mapsmith://handoff?sku=<SKU>&state=downloading|done|failed`
+  with `fraction` or `reason`. A failed index request has an empty SKU.
 
-`downloaded` is optional here: an older Scrollkeeper leaves it out, and then no
-cloud icons are shown.
+Being handed the list as a file, rather than reading Scrollkeeper's folder,
+works in the App Sandbox: Launch Services gives Mapsmith access to the files it
+is asked to open. Mapsmith keeps its own `Decodable` mirror of the index and
+does not depend on ScrollkeeperKit. It reads `formatVersion` first and refuses
+versions it does not know.
 
-Mapsmith keeps its own `Codable` mirror of the index and does not depend on
-ScrollkeeperKit. It reads `formatVersion` first and refuses versions it does
-not know.
+Pluck has the same bridge. When a third app needs it, the shared code moves
+into a package.
 
 ## MapsmithCore
-- `ScrollkeeperMapIndex` decodes the index; `search(_:)` matches every word of
+- `ScrollkeeperIndex` decodes the index; `search(_:)` matches every word of
   the query, folded for case and diacritics, against title and series.
-- `ScrollkeeperLibrary` locates Scrollkeeper and its index and returns a
-  `ScrollkeeperLibrary.State`: `notInstalled`, `noCatalog`,
-  `unsupportedVersion` or `loaded(index)`. The index location is a single
-  constant, `ScrollkeeperLibrary.defaultIndexURL`.
-- `ScrollkeeperLibrary` also builds the request URL and asks Scrollkeeper to
-  open a title or to come forward.
-- `PendingDownloads` holds the titles whose cloud was clicked. While it is not
-  empty the sheet rereads the list every second, and `settle(with:)` drops the
-  titles now downloaded.
+- `ScrollkeeperBridge`, `@Observable`, holds a `State` (`idle`,
+  `notInstalled`, `waiting`, `unsupportedVersion`, `unreadable`,
+  `failed(reason)` or `loaded(index)`) and the requests sent since the list was
+  last asked for, by SKU. `requestIndex()` clears them and asks for the list;
+  `receive(_:)` reads the file; `open(_:)` and `download(_:)` send a request in
+  the background; `receiveStatus(_:)` moves a request through `requested`,
+  `downloading(fraction)`, `done` and `failed(reason)`, and on `done` marks the
+  title downloaded in the loaded index.
 - `ApplicationLauncher` is the protocol for "is this app installed", "open
-  this URL" (in front or in the background) and "launch this app". The app supplies an `NSWorkspace` version;
-  tests supply a fake, as with `RecentDocumentStore`.
+  this URL in the background" and "launch this app". The app supplies an
+  `NSWorkspace` version; tests supply a fake, as with `RecentDocumentStore`.
 
 ## App
-- `AppModel.showsScrollkeeperSearch` drives a `.sheet` on `ContentView`, so the
-  command acts on the frontmost window (R1.5 of multiple-documents). A sheet
-  rather than a separate window, because the app quits when its last window
-  closes, which would happen before Scrollkeeper sends the files back.
-- Files come back through `NSWorkspace.open(_:withApplicationAt:)` in
-  Scrollkeeper, which arrives at `AppDelegate.application(_:open:)` and the
-  `DocumentRouter` like any Finder open. No new code path.
+- `AppDelegate` owns the bridge. `application(_:open:)` sends status links and
+  index files to it and everything else to the `DocumentRouter`, so the maps
+  Scrollkeeper opens arrive like any Finder open.
+- `Info.plist` declares the `mapsmith` URL scheme and imports Scrollkeeper's
+  index type (`io.github.scooper4711.scrollkeeper.index`) as a document type.
+- `ScrollkeeperWindow` is a `Window` scene of its own, opened with
+  `openWindow(id:)`, as in Pluck. It is not a sheet: the list and the status
+  links arrive as open events while it is up, and SwiftUI hands each of them a
+  new document window (which then fails to show it as a map) when the
+  frontmost document window has a sheet. The window closes when a request to
+  open reaches `done`, just before the files arrive; the document window the
+  command was chosen from, or the empty launch window, keeps the app from
+  quitting meanwhile.
 
 ## Sandboxing
-Neither app is sandboxed. If they become sandboxed, the request and the files
-coming back keep working; reading the index from Scrollkeeper's folder does
-not. The index then moves to an App Group container shared by the Tableside
-Toolkit apps, and only `ScrollkeeperLibrary.defaultIndexURL` changes here.
+Mapsmith is not sandboxed yet. Nothing here reads outside Mapsmith's own
+files, so sandboxing needs no change to this feature.
