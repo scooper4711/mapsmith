@@ -39,8 +39,8 @@ into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
   from [Pluck](https://github.com/scooper4711/pluck), can be dropped too.
 - **Open from Scrollkeeper** (⇧⌘O): type part of a map's name to search the Flip-Mats, Flip-Tiles and other
   maps you own on paizo.com, as listed by [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
-  (1.2 or later). A cloud marks the maps not downloaded yet: click it to download one in the background, or
-  press Return to download and open it in one go. For a map pack Scrollkeeper sends the PDF, which has twice
+  (1.4 or later), which stays in the background. A cloud marks the maps not downloaded yet: click it to
+  download one, or press Return to download and open it in one go, and watch the download's progress. For a map pack Scrollkeeper sends the PDF, which has twice
   the resolution of the pack's JPGs. Mapsmith never signs in to Paizo itself; Scrollkeeper does the downloading.
 - **Select** a map: its grid is detected and it is split into pages that fit the printable area of the
   current printer and paper (**File › Page Setup…**). Edge strips thinner than 1 in are trimmed rather
