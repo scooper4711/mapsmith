@@ -30,6 +30,9 @@ struct ScrollkeeperWindow: View {
         .padding(20)
         .frame(width: 520, height: 460)
         .onAppear(perform: bridge.requestIndex)
+        // The list and status links Scrollkeeper sends arrive as open events. Taking them here keeps this
+        // window in front; otherwise SwiftUI hands them to a document window and brings that forward.
+        .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
         .onChange(of: isOpening) { if isOpening { dismissWindow(id: Self.id) } }
         .task(id: bridge.state) {
             isSlow = false
