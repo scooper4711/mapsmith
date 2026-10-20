@@ -8,8 +8,8 @@
 - `scripts/build-app.sh` signs with the entitlements and copies
   `Resources/container-migration.plist` into the bundle's Resources. On the
   first sandboxed launch macOS moves the preferences
-  (`com.github.scooper4711.Mapsmith.plist`, window layouts only) into
-  `~/Library/Containers/com.github.scooper4711.Mapsmith`.
+  (`io.github.scooper4711.Mapsmith.plist`, window layouts only) into
+  `~/Library/Containers/io.github.scooper4711.Mapsmith`.
 - **Signing.** `scripts/sign-app.sh` signs the app with the first Developer ID
   Application certificate in the keychain, with the hardened runtime and a
   secure timestamp, or ad hoc when there is none (`SIGNING_IDENTITY` overrides
