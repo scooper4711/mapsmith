@@ -65,7 +65,8 @@ macOS 15 or later.
 Download the disk image from the [releases page](https://github.com/scooper4711/mapsmith/releases), open it
 and drag Mapsmith to Applications.
 
-The app is not notarized by Apple, so macOS blocks it the first time:
+Releases are signed with the Developer ID and notarized by Apple, so macOS opens them like any other app. Older
+releases aren't, and macOS blocks them the first time:
 
 1. Open Mapsmith once. macOS says it cannot be opened; click Done.
 2. Open System Settings › Privacy & Security and scroll down to the message about Mapsmith.
@@ -108,8 +109,9 @@ make dmg      # packages the app into a disk image
 make icon     # redraws Resources/AppIcon.icns
 ```
 
-Building needs Xcode 16 or later (Swift 6 toolchain). The app is ad-hoc signed. Open `Package.swift` in Xcode
-to run and debug it.
+Building needs Xcode 16 or later (Swift 6 toolchain). `scripts/sign-app.sh` signs the app with the Developer ID when
+the keychain holds a Developer ID Application certificate, and ad hoc otherwise. Open `Package.swift` in Xcode to
+run and debug it.
 
 Tests that read real maps use PDFs in `TestData/`, which is not committed because the maps are copyrighted.
 Copy or link your own Flip-Mat PDFs there to run them; they are skipped when the folder is empty.
