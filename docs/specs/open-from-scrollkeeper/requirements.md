@@ -17,6 +17,13 @@ in Finder. The handoff contract is owned by Scrollkeeper:
   typed word, ignoring case and accents. An empty search shows every title.
 - R1.4 The window says when Scrollkeeper last updated the list.
 - R1.5 The best match is selected as the user types, so Return opens it.
+- R1.6 When Scrollkeeper shares its library through the Tableside Toolkit's
+  App Group (Scrollkeeper's app-handoff requirements 5 and 6), the window reads
+  the maps from there at once, without asking Scrollkeeper, and shows each
+  map's cover. Otherwise, or when the shared list is in a format Mapsmith
+  doesn't know, it asks Scrollkeeper as in R1.2.
+- R1.7 A list read from the App Group follows Scrollkeeper's changes while the
+  window is open, such as a download finishing.
 
 ## R2 Opening a map
 - R2.1 Choosing a title (double-click, or Return on the selection) asks
@@ -26,6 +33,11 @@ in Finder. The handoff contract is owned by Scrollkeeper:
   way.
 - R2.2 Scrollkeeper downloads the title when needed and sends its PDFs and
   images back; each opens in its own window (multiple-documents R1).
+- R2.2a A title already up to date in Scrollkeeper's shared download folder
+  opens straight from there, without asking Scrollkeeper, choosing the files
+  as Scrollkeeper would: a single file first, otherwise an unpacked archive's
+  PDFs, or its images when it has none. A title in a download folder the user
+  chose, which Mapsmith can't read, is still asked for.
 - R2.3 Titles that are not on disk yet show a cloud icon, and the open button
   reads "Download and Open" while one is selected.
 - R2.4 Clicking the cloud asks Scrollkeeper, staying in the background, to

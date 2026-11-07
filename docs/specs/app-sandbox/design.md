@@ -4,7 +4,11 @@
   access to files the user picks (File ▸ Open, the export save panel). Files
   opened from Finder, the Dock, Open Recent and by Scrollkeeper come through
   Launch Services, which grants access to them; Open Recent keeps that access
-  across launches. No network access: Mapsmith makes no requests.
+  across launches. No network access: Mapsmith makes no requests. The
+  Tableside Toolkit's App Group, `TEAM_ID.io.github.scooper4711.tableside`,
+  gives it Scrollkeeper's shared folder (open-from-scrollkeeper):
+  `scripts/build-app.sh` puts in the team of the Developer ID certificate (or
+  `TEAM_ID`), and leaves the group out of an ad hoc build.
 - `scripts/build-app.sh` signs with the entitlements and copies
   `Resources/container-migration.plist` into the bundle's Resources. On the
   first sandboxed launch macOS moves the preferences
