@@ -108,6 +108,7 @@ struct ScrollkeeperWindow: View {
     private func results(_ entries: [ScrollkeeperIndex.Entry]) -> some View {
         List(entries, selection: $selection) { entry in
             HStack {
+                CoverThumbnail(url: entry.coverURL)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(entry.title)
                     if !entry.subtitle.isEmpty {
@@ -192,6 +193,28 @@ struct ScrollkeeperWindow: View {
         guard let entry = selectedEntry else { return }
         bridge.open(entry)
         if entry.downloaded { dismissWindow(id: Self.id) }
+    }
+}
+
+/// A title's cover from Scrollkeeper's folder, or a map symbol when there is none, loaded off the main thread.
+private struct CoverThumbnail: View {
+    let url: URL?
+    @State private var image: NSImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(nsImage: image).resizable().scaledToFit()
+            } else {
+                Image(systemName: "map").foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 28, height: 36)
+        .task(id: url) {
+            guard let url else { return }
+            let data = await Task.detached { try? Data(contentsOf: url) }.value
+            image = data.flatMap(NSImage.init(data:))
+        }
     }
 }
 
