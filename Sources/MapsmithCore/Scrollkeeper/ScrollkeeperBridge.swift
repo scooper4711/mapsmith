@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import TablesideShared
 
 /// What Mapsmith needs from the system to work with another app. The app uses `NSWorkspace`;
 /// tests use a fake.
@@ -149,11 +150,7 @@ public final class ScrollkeeperBridge {
 
     /// True when the library list was read: one Mapsmith understands, in the App Group.
     private func readLibrary() -> Bool {
-        guard let folder = libraryFolder,
-              let data = try? Data(contentsOf: folder.appending(path: ScrollkeeperLibrary.fileName)),
-              let header = try? Self.decoder.decode(FormatHeader.self, from: data),
-              header.formatVersion <= ScrollkeeperLibrary.supportedFormatVersion,
-              let library = try? Self.decoder.decode(ScrollkeeperLibrary.self, from: data)
+        guard let folder = libraryFolder, case let .loaded(library) = ScrollkeeperLibrary.read(from: folder)
         else { return false }
         state = .loaded(library.mapIndex(in: folder))
         isShowingLibrary = true

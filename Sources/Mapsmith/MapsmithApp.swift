@@ -1,6 +1,6 @@
 import AppKit
 import MapsmithCore
-import notify
+import TablesideShared
 import SwiftUI
 
 @main
@@ -86,15 +86,14 @@ enum OpenPanel {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let router = DocumentRouter()
     let recents = RecentDocuments(store: SystemRecentDocuments())
-    let scrollkeeper = ScrollkeeperBridge(launcher: WorkspaceLauncher(), libraryFolder: ScrollkeeperFolder.url())
-    private var libraryToken: Int32 = 0
+    let scrollkeeper = ScrollkeeperBridge(launcher: WorkspaceLauncher(),
+                                          libraryFolder: ToolkitGroup.scrollkeeperFolder())
+    private var libraryChanges: LibraryChangeObserver?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         scrollkeeper.openDocuments = { [router] urls in router.open(urls) }
         // Scrollkeeper says when it rewrites its library list, so an open list follows its downloads.
-        notify_register_dispatch(ScrollkeeperLibrary.changeNotification, &libraryToken, .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.scrollkeeper.refreshLibrary() }
-        }
+        libraryChanges = LibraryChangeObserver { [weak self] in self?.scrollkeeper.refreshLibrary() }
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {

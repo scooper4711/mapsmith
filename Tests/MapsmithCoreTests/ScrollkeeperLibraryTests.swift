@@ -84,17 +84,6 @@ final class FakeScrollkeeperFolder {
         #expect(launcher.backgroundURLs.isEmpty)
     }
 
-    @Test func opensAnUnpackedArchivesPDFsBeforeItsImages() throws {
-        for path in ["Pack/Pack/b.pdf", "Pack/Pack/a.pdf", "Pack/Pack/a.jpg", "Pack/Pack/notes.txt"] {
-            try folder.addFile(path)
-        }
-        try folder.writeLibrary(titles: [FakeScrollkeeperFolder.title("MAP1", editions: [
-            FakeScrollkeeperFolder.edition("Pack/Pack", isFolder: true)
-        ])])
-
-        #expect(try entry("MAP1").localFiles.map(\.lastPathComponent) == ["a.pdf", "b.pdf"])
-    }
-
     @Test func opensAnArchivesImagesWhenItHasNoPDF() throws {
         try folder.addFile("Tiles/Tiles/2.png")
         try folder.addFile("Tiles/Tiles/1.jpg")
@@ -174,14 +163,6 @@ final class FakeScrollkeeperFolder {
 
         guard case let .loaded(index) = bridge.state else { throw ScrollkeeperLibraryTestError.notLoaded }
         #expect(index.titles.map(\.sku) == ["HANDED"])
-    }
-
-    @Test func findsTheToolkitGroupAmongTheSignedGroups() {
-        #expect(ScrollkeeperFolder.tablesideGroup(in: ["T.io.github.scooper4711.other",
-                                                       "T.io.github.scooper4711.tableside"])
-                == "T.io.github.scooper4711.tableside")
-        #expect(ScrollkeeperFolder.tablesideGroup(in: []) == nil)
-        #expect(ScrollkeeperFolder.url() == nil)
     }
 }
 

@@ -26,8 +26,10 @@ download folder, and posts the Darwin notification
 reads that directly when it is in the group and uses the index request only as
 the fallback.
 
-Pluck has the same bridge. When a third app needs it, the shared code moves
-into a package (tabletop-kit's `TablesideShared`, tabletop-kit#22).
+The App Group lookup, the library list's format and the change notification
+are tabletop-kit's `TablesideShared` (`docs/specs/tableside-shared` there),
+shared with Scrollkeeper, which writes the list, and the other readers. Pluck
+has a bridge like this one of its own.
 
 ## MapsmithCore
 - `ScrollkeeperIndex` decodes the index; `search(_:)` matches every word of
@@ -40,20 +42,14 @@ into a package (tabletop-kit's `TablesideShared`, tabletop-kit#22).
   the background; `receiveStatus(_:)` moves a request through `requested`,
   `downloading(fraction)`, `done` and `failed(reason)`, and on `done` marks the
   title downloaded in the loaded index.
-- `ScrollkeeperFolder.url()` finds Scrollkeeper's folder in the App Group: it
-  reads the groups from Mapsmith's own entitlements
-  (`SecTaskCopyValueForEntitlement`), so the code holds no team ID, and asks
-  for the container of the one ending in `.io.github.scooper4711.tableside`.
-  Nil outside the group (an ad hoc build, the tests).
-- `ScrollkeeperLibrary` is a `Decodable` mirror of the parts of `library.json`
-  Mapsmith uses. `mapIndex(in:)` turns its titles of kind "Maps" into
-  `ScrollkeeperIndex` entries, with `coverURL` and, when the download folder
-  is the shared one, `localFiles`: the first up-to-date single PDF or image,
-  else the PDFs (or, without any, the images) under the first up-to-date
-  unpacked archive. Neither field is decoded from the handed-over index.
+- `ScrollkeeperLibrary.mapIndex(in:)`, an extension of the shared type, turns
+  its titles of kind "Maps" into `ScrollkeeperIndex` entries, with `coverURL`
+  and, when the download folder is the shared one, `localFiles` from
+  `filesToOpen(in:accepting:)` with PDFs and images accepted. Neither field is
+  decoded from the handed-over index.
 - `ScrollkeeperBridge(launcher:libraryFolder:)` reads the library list first in
-  `requestIndex()`: a missing, unreadable or newer list falls back to the index
-  request. `refreshLibrary()` reads it again, only while the list shown came
+  `requestIndex()` (`ScrollkeeperLibrary.read(from:)`): a missing, unreadable
+  or newer list falls back to the index request. `refreshLibrary()` reads it again, only while the list shown came
   from it. `open(_:)` hands an entry's `localFiles` to `openDocuments`, set by
   the app, instead of sending a request.
 - `ApplicationLauncher` is the protocol for "is this app installed", "open
@@ -61,13 +57,13 @@ into a package (tabletop-kit's `TablesideShared`, tabletop-kit#22).
   `NSWorkspace` version; tests supply a fake, as with `RecentDocumentStore`.
 
 ## App
-- `AppDelegate` owns the bridge, made with `ScrollkeeperFolder.url()`.
+- `AppDelegate` owns the bridge, made with `ToolkitGroup.scrollkeeperFolder()`.
   `application(_:open:)` sends status links and index files to it and
   everything else to the `DocumentRouter`, so the maps Scrollkeeper opens
   arrive like any Finder open; `openDocuments` sends the maps opened from the
-  shared folder to the router too. At launch it registers for Scrollkeeper's
-  Darwin notification (`notify_register_dispatch` on the main queue) and calls
-  `refreshLibrary()`.
+  shared folder to the router too. At launch it keeps a
+  `LibraryChangeObserver`, which calls `refreshLibrary()` each time Scrollkeeper
+  rewrites the list.
 - Each row of the list shows the map's cover (`CoverThumbnail`, read off the
   main thread), or a map symbol.
 - `Info.plist` declares the `mapsmith` URL scheme and imports Scrollkeeper's
