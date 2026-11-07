@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import TablesideShared
 
 /// What Mapsmith needs from the system to work with another app. The app uses `NSWorkspace`;
 /// tests use a fake.
@@ -27,9 +28,10 @@ public struct ScrollkeeperRequest: Equatable, Sendable {
     public var phase: Phase
 }
 
-/// Scrollkeeper as Mapsmith sees it: Mapsmith asks for the list of maps, Scrollkeeper hands it over
-/// as a file, and Mapsmith asks it to download or open a title. Scrollkeeper stays in the background
-/// and reports how each request goes with status links.
+/// Scrollkeeper as Mapsmith sees it: Mapsmith reads the list of maps from Scrollkeeper's folder in the App Group,
+/// or asks for it and has it handed over as a file, and asks Scrollkeeper to download or open a title. A map
+/// already in the shared folder opens straight from there. Scrollkeeper stays in the background and reports how
+/// each request goes with status links.
 @MainActor
 @Observable
 public final class ScrollkeeperBridge {
@@ -51,25 +53,41 @@ public final class ScrollkeeperBridge {
     public private(set) var state = State.idle
     /// The requests sent since the list was last asked for, by SKU.
     public private(set) var requests: [String: ScrollkeeperRequest] = [:]
+    /// Opens the files of a map that is on disk, which needs no request.
+    @ObservationIgnored public var openDocuments: ([URL]) -> Void = { _ in }
     @ObservationIgnored private let launcher: ApplicationLauncher
+    /// Scrollkeeper's folder in the App Group; nil when Mapsmith isn't in the group.
+    @ObservationIgnored private let libraryFolder: URL?
+    /// True while the list shown was read from the library list, which is read again when it changes.
+    @ObservationIgnored private var isShowingLibrary = false
 
-    public init(launcher: ApplicationLauncher) {
+    public init(launcher: ApplicationLauncher, libraryFolder: URL? = nil) {
         self.launcher = launcher
+        self.libraryFolder = libraryFolder
     }
 
-    /// Asks Scrollkeeper, staying in the background, to hand over the list of maps.
+    /// Reads the list of maps from Scrollkeeper's library list, or when there is none, asks Scrollkeeper, staying
+    /// in the background, to hand it over.
     public func requestIndex() {
         requests = [:]
         guard launcher.isInstalled(Self.bundleIdentifier) else {
             state = .notInstalled
             return
         }
+        if readLibrary() { return }
         state = .waiting
         launcher.openInBackground(Self.requestURL(host: "index", sku: nil))
     }
 
+    /// Reads the library list again after Scrollkeeper says it changed, while the list shown came from it.
+    public func refreshLibrary() {
+        guard isShowingLibrary else { return }
+        _ = readLibrary()
+    }
+
     /// Reads the list Scrollkeeper handed over.
     public func receive(_ file: URL) {
+        isShowingLibrary = false
         guard let data = try? Data(contentsOf: file),
               let header = try? Self.decoder.decode(FormatHeader.self, from: data) else {
             state = .unreadable
@@ -86,8 +104,13 @@ public final class ScrollkeeperBridge {
         state = .loaded(index)
     }
 
-    /// Asks Scrollkeeper to download the title when needed and open it in Mapsmith.
+    /// Opens the title's files when they are in the shared folder; otherwise asks Scrollkeeper to download the
+    /// title when needed and open it in Mapsmith.
     public func open(_ entry: ScrollkeeperIndex.Entry) {
+        guard entry.localFiles.isEmpty else {
+            openDocuments(entry.localFiles)
+            return
+        }
         send(entry, opens: true)
     }
 
@@ -123,6 +146,15 @@ public final class ScrollkeeperBridge {
     /// Brings Scrollkeeper forward, so the user can sign in and load their library.
     public func launchScrollkeeper() {
         launcher.launch(Self.bundleIdentifier)
+    }
+
+    /// True when the library list was read: one Mapsmith understands, in the App Group.
+    private func readLibrary() -> Bool {
+        guard let folder = libraryFolder, case let .loaded(library) = ScrollkeeperLibrary.read(from: folder)
+        else { return false }
+        state = .loaded(library.mapIndex(in: folder))
+        isShowingLibrary = true
+        return true
     }
 
     private func send(_ entry: ScrollkeeperIndex.Entry, opens: Bool) {

@@ -12,6 +12,11 @@ public struct ScrollkeeperIndex: Decodable, Equatable, Sendable {
         public var number: Int?
         /// Whether an up-to-date copy is on disk.
         public var downloaded: Bool
+        /// The cover Scrollkeeper keeps in the App Group; nil when the list came as a file or has none.
+        public var coverURL: URL?
+        /// The files to open straight from Scrollkeeper's shared download folder, without asking Scrollkeeper;
+        /// empty when the title isn't there.
+        public var localFiles: [URL] = []
 
         public init(sku: String, title: String, series: String? = nil, number: Int? = nil, downloaded: Bool = true) {
             self.sku = sku
@@ -68,5 +73,12 @@ public struct ScrollkeeperIndex: Decodable, Equatable, Sendable {
     mutating func markDownloaded(_ sku: String) {
         guard let position = titles.firstIndex(where: { $0.sku == sku }) else { return }
         titles[position].downloaded = true
+    }
+}
+
+extension ScrollkeeperIndex.Entry {
+    /// The fields of the handed-over index; `coverURL` and `localFiles` come from the library list instead.
+    private enum CodingKeys: String, CodingKey {
+        case sku, title, series, number, downloaded
     }
 }
