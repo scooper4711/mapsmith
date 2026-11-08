@@ -11,6 +11,7 @@ struct MapsmithApp: App {
         // One window per file, as in Preview. Opening a file that already has a window brings it forward.
         WindowGroup(for: URL.self) { $url in
             DocumentWindow(url: url, router: appDelegate.router, recents: appDelegate.recents)
+                .environment(appDelegate.inkPrices)
                 .frame(minWidth: 900, minHeight: 600)
         }
         .defaultSize(width: 1300, height: 850)
@@ -22,6 +23,10 @@ struct MapsmithApp: App {
             ScrollkeeperWindow(bridge: appDelegate.scrollkeeper)
         }
         .windowResizability(.contentSize)
+
+        Settings {
+            InkSettingsView(book: appDelegate.inkPrices)
+        }
     }
 }
 
@@ -86,6 +91,7 @@ enum OpenPanel {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let router = DocumentRouter()
     let recents = RecentDocuments(store: SystemRecentDocuments())
+    let inkPrices = InkPriceBook()
     let scrollkeeper = ScrollkeeperBridge(launcher: WorkspaceLauncher(),
                                           libraryFolder: ToolkitGroup.scrollkeeperFolder())
     private var libraryChanges: LibraryChangeObserver?

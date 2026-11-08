@@ -37,6 +37,8 @@ final class AppModel {
     /// Each window has its own page setup, starting from the one most recently chosen in any window.
     let printInfo = NSPrintInfo.shared.copy() as? NSPrintInfo ?? .shared
     private(set) var page: PageGeometry = .a4Default
+    /// The ink the current plan needs, once worked out for `inkEstimateKey`.
+    private(set) var inkCoverage: InkEstimate?
     private var loadTask: Task<Void, Never>?
 
     init() { page = PrintSetup.geometry(of: printInfo) }
@@ -66,6 +68,12 @@ final class AppModel {
         guard loadedMap != nil, let ppi = pixelsPerInch, ppi > 0 else { return nil }
         let settings = TileSettings(page: page, minimumSliverInches: CGFloat(minimumSliverInches))
         return TilePlanner.plan(mapSize: mapPixelSize, pixelsPerInch: ppi, settings: settings)
+    }
+
+    /// What the ink estimate depends on; it is worked out again when this changes.
+    var inkEstimateKey: InkEstimate.Key? {
+        guard let plan, let itemID = selectedItemID else { return nil }
+        return InkEstimate.Key(itemID: itemID, plan: plan, page: page)
     }
 
     var printerName: String { PrintSetup.printerName(of: printInfo) }
@@ -129,6 +137,21 @@ final class AppModel {
         }
     }
 
+    // MARK: - Ink
+
+    /// Works out the ink the current plan needs, off the main thread. Run from a view's `task(id:)`
+    /// on `inkEstimateKey`, so a newer plan cancels the estimate for an older one.
+    func estimateInk() async {
+        guard let key = inkEstimateKey, let map = loadedMap else { return }
+        guard inkCoverage?.key != key else { return }
+        let page = self.page
+        let pages = try? await Task.detached(priority: .utility) {
+            try InkCoverageEstimator.coverage(map: map.image, plan: key.plan, page: page)
+        }.value
+        guard !Task.isCancelled, let pages, key == inkEstimateKey else { return }
+        inkCoverage = InkEstimate(key: key, coverage: pages.reduce(.zero, +), pageCount: pages.count)
+    }
+
     // MARK: - Page setup, export and print
 
     func runPageSetup() {
@@ -177,4 +200,17 @@ final class AppModel {
             }
         }
     }
+}
+
+/// The ink a plan needs in all, and the plan it was worked out for.
+struct InkEstimate: Equatable {
+    struct Key: Equatable {
+        let itemID: UUID
+        let plan: TilePlan
+        let page: PageGeometry
+    }
+
+    let key: Key
+    let coverage: InkCoverage
+    let pageCount: Int
 }

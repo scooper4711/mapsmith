@@ -46,6 +46,9 @@ into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
   current printer and paper (**File › Page Setup…**). Edge strips thinner than 1 in are trimmed rather
   than printed on their own pages, and the map is turned 90° when that uses fewer pages.
 - **Print** the pages directly (⌘P), or **Export** them as a PDF (⌘E).
+- **See what the ink costs**: enter what a set of your printer's ink costs and each cartridge's rated page
+  yield in **Mapsmith › Settings…** (⌘,), and the inspector estimates the ink for the whole map and for
+  each page. The rated yield is on the cartridge's box and on the printer's specifications page.
 
 Print at 100% scale. Each page keeps the printer's non-printable margin blank; trim that border where pages
 meet.
