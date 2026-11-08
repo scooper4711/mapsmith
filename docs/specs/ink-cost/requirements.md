@@ -40,5 +40,7 @@ single map, and they also drop for everything else the user prints.
   White paper costs nothing.
 - R3.2 A cartridge's cost for a page is its share of the set's price, times the
   page's coverage of its ink divided by 5%, divided by its rated yield. The
-  set's price is shared equally among the cartridges used for maps.
+  set's price is shared equally among all its cartridges, including those not
+  used for maps: the set buys them all, so a cartridge's worth doesn't depend
+  on whether maps use it.
 - R3.3 The map's cost is the sum over its pages and cartridges.

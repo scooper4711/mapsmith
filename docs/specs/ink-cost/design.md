@@ -3,7 +3,8 @@
 ## Coverage (MapsmithCore)
 - `InkCoverage` is the coverage of each ink in page-equivalents: `cyan`,
   `magenta`, `yellow` and `black`, where 1.0 is one sheet of the selected paper
-  covered completely by that ink. It adds up across pages.
+  covered completely by that ink. Coverages add up across pages, and
+  `coverage[ink]` looks one up by `InkColor`.
 - `InkCoverageEstimator.coverage(map:plan:page:)` returns one `InkCoverage` per
   tile. It draws each tile, scaled down to 36 pixels per inch, into an 8-bit
   `CGContext` in the generic CMYK color space (`CGColorSpace.genericCMYK`) and
@@ -19,37 +20,48 @@
 - `InkSet` is one printer's prices: `price` (a `Decimal`) and `cartridges`.
   An `InkCartridge` has `name`, `ink` (`InkColor`: `.cyan`, `.magenta`,
   `.yellow`, `.black` or `.unused`) and `ratedPages`.
-- `InkSet.cost(of:)` takes an `InkCoverage` and applies R3.2:
-  `price / usedCount × (coverage[ink] / 0.05) / ratedPages` for each used
-  cartridge. A cartridge with no rated pages adds nothing; a set with no
-  used cartridges costs nothing.
-- `InkSet.defaults(from:)` builds a set from the cartridges a printer reports
-  (`PrinterSupply`: name, color, type), choosing `ink` from the reported color
-  and, among several blacks, the one whose name contains "PG" (otherwise the
-  first). A printer that reports nothing gets cyan, magenta, yellow and black.
-- `InkPriceStore` keeps a JSON-encoded `InkSet` per printer name in
-  `UserDefaults` under `inkSet.<printer name>`.
+- `InkSet.cost(of:)` applies R3.2: `price / cartridges.count ×
+  (coverage[ink] / 0.05) / ratedPages`, summed over the used cartridges. A
+  cartridge with no rated pages adds nothing.
+- `InkSet.isComplete` is true when the price is above zero and every used
+  cartridge has rated pages. Only a complete set gives an estimate.
+- `InkSet.defaults(from:)` builds a set from the supplies a printer reports,
+  keeping ink cartridges and toner. Of several blacks only the one whose name
+  contains "PG" (otherwise the first) is used. A printer that reports nothing
+  gets cyan, magenta, yellow and black.
+- `PrinterSupply` is a reported supply: name, color and type. Its `ink` comes
+  from the color (each RGB channel high or low gives cyan, magenta, yellow or
+  black), else from words in the name, else `.unused`.
+  `PrinterSupply.list(names:colors:types:)` splits CUPS's comma-separated
+  values, honoring backslash escapes and quotes. Some printers (a Xerox
+  VersaLink) leave a comma inside a name unescaped, so a piece starting with a
+  space joins the one before it; a serial number after a semicolon is dropped.
+- `InkPriceBook` (`@Observable`, main actor) keeps a JSON-encoded `InkSet` per
+  printer name in `UserDefaults` under `inkSet.<printer name>`.
+  `completeSet(for:)` is the set used for estimates. A revision counter bumped
+  on save makes views update when prices change.
 
 ## Printer supplies (Mapsmith)
-- `PrinterSupplies.list(for:)` reads the CUPS printer options `marker-names`,
-  `marker-colors` and `marker-types` with `cupsGetNamedDest` and
-  `cupsGetOption`, keeping only `ink-cartridge` and `toner` supplies. Mapsmith
-  reads only the names, never `marker-levels`.
-- The sandbox's `com.apple.security.print` entitlement covers this. If CUPS
-  gives nothing, the list is empty and R1.2's fallback applies.
+- `PrinterSupplies.list(for:)` finds the CUPS destination whose queue name or
+  `printer-info` is the printer's AppKit name, and reads its `marker-names`,
+  `marker-colors` and `marker-types` options with `cupsGetOption`. It never
+  reads `marker-levels`. The sandbox's `com.apple.security.print` entitlement
+  covers this; if CUPS gives nothing, R1.2's fallback applies.
 
 ## UI (Mapsmith)
-- `InkSettingsView` is the Ink pane of the app's `Settings` scene. It picks a
-  printer (the installed printers, the selected one first) and edits its
-  `InkSet`: a price field, and one row per cartridge with its name, an ink
-  picker and a rated-pages field. A caption says where the rated yield is
-  found.
-- `InkSet.isComplete` is true when the price is above zero and every used
-  cartridge has rated pages. The Result section shows the estimate only then.
-- `AppModel.inkEstimate` holds the map's total `InkCoverage` and the page
-  count. It is recalculated in a detached task whenever `plan`, `page` or the
-  loaded map changes, and a newer request cancels an older one. The inspector
-  turns it into money with the selected printer's `InkSet`, so editing prices
-  doesn't recalculate the coverage.
+- The app's `InkPriceBook` belongs to `AppDelegate` and reaches document
+  windows through the environment.
+- `InkSettingsView` is the app's `Settings` scene. It picks a printer (the
+  current one first) and edits its `InkSet`: a price field in the region's
+  currency, and one row per cartridge with its name, an ink picker and a
+  rated-pages field. A footer says where the rated yield is found. Each change
+  is saved at once.
+- `AppModel.inkEstimateKey` is what the estimate depends on: the selected map,
+  the plan and the page. The inspector runs
+  `AppModel.estimateInk()` in a `task(id:)` on that key, so a newer plan cancels
+  an older estimate; the coverage is worked out in a detached task and kept in
+  `AppModel.inkCoverage` with its key. `InkCostRow` in the Result section turns it into money with the
+  selected printer's complete `InkSet`, so editing prices doesn't recalculate
+  the coverage, and shows nothing without one.
 - The amounts use `Decimal.FormatStyle.Currency` with the region's currency
-  code.
+  code: the whole map to the unit, a page to two decimals.
