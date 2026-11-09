@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "MapsmithCore", targets: ["MapsmithCore"])
     ],
     dependencies: [
-        .package(url: "https://github.com/scooper4711/tabletop-kit.git", from: "0.16.0")
+        .package(url: "https://github.com/scooper4711/tabletop-kit.git", from: "0.17.0")
     ],
     targets: [
         .target(name: "MapsmithCore", dependencies: [.product(name: "TablesideShared", package: "tabletop-kit")]),
