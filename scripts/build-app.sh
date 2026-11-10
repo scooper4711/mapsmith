@@ -7,6 +7,10 @@
 # UNIVERSAL  set to 1 to build for both Apple silicon and Intel
 # TEAM_ID    the team that owns the App Group (default: read from the Developer ID certificate)
 # SIGNING_IDENTITY  passed to scripts/sign-app.sh; "-" signs ad hoc, without the App Group
+# BUILD_NUMBER  CFBundleVersion, which must increase with every App Store upload (default: VERSION)
+# CHANNEL    "appstore" also builds the Mac App Store package, build/appstore/Mapsmith.pkg, with tabletop-kit's
+#            scripts/package-appstore.sh (PACKAGER names another copy); needs TEAM_ID and that script's variables,
+#            and TRIAL=1 checks it without them. Mapsmith has no updater or payment link, so the sources are the same.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -30,11 +34,12 @@ cp "$BINARY" "$APP/Contents/MacOS/$EXECUTABLE"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp Resources/container-migration.plist "$APP/Contents/Resources/container-migration.plist"
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" -c "Set :CFBundleVersion $VERSION" \
-    "$APP/Contents/Info.plist"
+cp Resources/PrivacyInfo.xcprivacy "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" \
+    -c "Set :CFBundleVersion ${BUILD_NUMBER:-$VERSION}" "$APP/Contents/Info.plist"
 # The entitlements turn on the App Sandbox. A build signed with the team's Developer ID also joins the Tableside
 # Toolkit's App Group, where Scrollkeeper shares its library: the team's ID takes the place of TEAM_ID. The team ID
-# is read from the signing certificate, or from TEAM_ID in the environment, and never committed. An ad hoc
+# is read from the signing certificate, or from TEAM_ID in the environment. An ad hoc
 # signature can't join the group, so its build leaves the group out and asks Scrollkeeper for the list instead.
 ENTITLEMENTS="build/Mapsmith.entitlements"
 if [[ "${SIGNING_IDENTITY:-}" != "-" ]]; then
@@ -49,6 +54,12 @@ else
 fi
 scripts/sign-app.sh "$APP" "$ENTITLEMENTS"
 echo "Built $APP ($VERSION)"
+
+if [[ "${CHANNEL:-}" == "appstore" ]]; then
+    # Found beside the package after "swift package resolve", so the script follows the dependency pin.
+    "${PACKAGER:-.build/checkouts/tabletop-kit/scripts/package-appstore.sh}" "$APP" "$ENTITLEMENTS" \
+        io.github.scooper4711.Mapsmith
+fi
 
 if [[ "${1:-}" == "--install" ]]; then
     rm -rf "/Applications/Mapsmith.app"

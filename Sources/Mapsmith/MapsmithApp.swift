@@ -48,6 +48,9 @@ struct AppCommands: Commands {
                     .disabled(recents.urls.isEmpty)
             }
         }
+        CommandGroup(replacing: .help) {
+            Link("Mapsmith Privacy Policy", destination: AppLinks.privacyPolicy)
+        }
         CommandGroup(after: .saveItem) {
             Button("Export Tiles as PDF…") { model?.exportPDF() }
                 .keyboardShortcut("e")
@@ -62,6 +65,12 @@ struct AppCommands: Commands {
                 .disabled(model?.plan == nil)
         }
     }
+}
+
+enum AppLinks {
+    // A literal URL that is known to parse.
+    // swiftlint:disable:next force_unwrapping
+    static let privacyPolicy = URL(string: "https://github.com/scooper4711/mapsmith/blob/main/PRIVACY.md")!
 }
 
 extension FocusedValues {
