@@ -12,7 +12,8 @@ network requests at all.
   are never uploaded. Mapsmith saves nothing of them except the tile PDFs you export, where you choose to put them.
 - **Recent files** are remembered on your Mac so Open Recent works. Clear Menu forgets them.
 
-Deleting the app deletes the rest.
+Deleting the app from your Mac leaves this behind: macOS keeps an app's saved data in the Containers folder of
+your Library folder until you delete the folder named Mapsmith there.
 
 ## Other apps on your Mac
 
