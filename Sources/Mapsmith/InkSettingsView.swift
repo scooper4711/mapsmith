@@ -30,8 +30,12 @@ struct InkSettingsView: View {
                     photo yield (for example 4x6 prints), which counts a different, much smaller page. If the \
                     page lists several yields for a cartridge, take the one for text or document pages.
 
-                    The yield is for the maker's own ink. Third-party cartridges are often cheaper but rated for \
-                    fewer pages, so use the yield the third-party seller states, or a lower figure if it states none.
+                    Choose which ink each cartridge supplies for a map. Some printers have two blacks, such as a \
+                    dye black for photos and a pigment black for plain paper; maps use only one, so set the other \
+                    to "Not used for maps". It then needs no price or yield.
+
+                    If you use third-party cartridges, enter the yield the seller states, or a lower figure if it \
+                    states none. They are often cheaper but rated for fewer pages.
                     """)
                     .font(.caption).foregroundStyle(.secondary)
             }
