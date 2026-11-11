@@ -30,8 +30,8 @@ struct InkSettingsView: View {
                     photo yield (for example 4x6 prints), which counts a different, much smaller page. If the \
                     page lists several yields for a cartridge, take the one for text or document pages.
 
-                    These settings only work out the cost estimate. They don't change what the printer prints or which ink \
-                    it uses.
+                    These settings only work out the cost estimate. They don't change what the printer prints or \
+                    which ink it uses.
 
                     Choose which ink each cartridge supplies for a map. Some printers have two blacks, such as a \
                     dye black for photos and a pigment black for plain paper; maps use only one, so set the other \
