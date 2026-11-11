@@ -2,7 +2,7 @@ import AppKit
 import MapsmithCore
 import SwiftUI
 
-/// The Ink pane of Settings: what a set of each printer's ink costs and what its cartridges yield.
+/// The Ink pane of Settings: what each of a printer's ink cartridges costs and yields.
 struct InkSettingsView: View {
     let book: InkPriceBook
 
@@ -15,16 +15,14 @@ struct InkSettingsView: View {
                 ForEach(NSPrinter.printerNames, id: \.self) { Text($0).tag($0) }
             }
             Section {
-                TextField("Price of a complete set", value: $draft.price, format: .currency(code: Self.currencyCode))
-            }
-            Section {
                 ForEach(draft.cartridges.indices, id: \.self) { cartridgeRow($draft.cartridges[$0]) }
             } header: {
                 Text("Cartridges")
             } footer: {
                 Text("""
-                    Enter each cartridge's rated yield in A4 pages (ISO/IEC 24711). It is on the cartridge's box \
-                    and on the Specifications tab of the printer's page on the maker's website.
+                    Enter what each cartridge costs and its rated yield in A4 pages (ISO/IEC 24711). The yield is \
+                    on the cartridge's box and on the Specifications tab of the printer's page on the maker's \
+                    website.
                     """)
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -43,6 +41,11 @@ struct InkSettingsView: View {
             }
             .labelsHidden()
             .frame(width: 140)
+            TextField("Price", value: cartridge.price, format: .currency(code: Self.currencyCode))
+                .labelsHidden()
+                .multilineTextAlignment(.trailing)
+                .frame(width: 90)
+                .disabled(cartridge.wrappedValue.ink == .unused)
             TextField("Pages", value: cartridge.ratedPages, format: .number)
                 .labelsHidden()
                 .multilineTextAlignment(.trailing)

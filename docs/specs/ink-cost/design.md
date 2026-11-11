@@ -17,14 +17,14 @@
   `TileExportError.imageProcessingFailed` with the step that failed.
 
 ## Prices (MapsmithCore)
-- `InkSet` is one printer's prices: `price` (a `Decimal`) and `cartridges`.
-  An `InkCartridge` has `name`, `ink` (`InkColor`: `.cyan`, `.magenta`,
-  `.yellow`, `.black` or `.unused`) and `ratedPages`.
-- `InkSet.cost(of:)` applies R3.2: `price / cartridges.count ×
-  (coverage[ink] / 0.05) / ratedPages`, summed over the used cartridges. A
-  cartridge with no rated pages adds nothing.
-- `InkSet.isComplete` is true when the price is above zero and every used
-  cartridge has rated pages. Only a complete set gives an estimate.
+- `InkSet` is one printer's `cartridges`. An `InkCartridge` has `name`, `ink`
+  (`InkColor`: `.cyan`, `.magenta`, `.yellow`, `.black` or `.unused`),
+  `ratedPages` and `price` (a `Decimal`).
+- `InkSet.cost(of:)` applies R3.2: `price × (coverage[ink] / 0.05) /
+  ratedPages`, summed over the used cartridges. A cartridge with no rated
+  pages adds nothing.
+- `InkSet.isComplete` is true when every used cartridge has a price above zero
+  and rated pages. Only a complete set gives an estimate.
 - `InkSet.defaults(from:)` builds a set from the supplies a printer reports,
   keeping ink cartridges and toner. Of several blacks only the one whose name
   contains "PG" (otherwise the first) is used. A printer that reports nothing
@@ -52,9 +52,8 @@
 - The app's `InkPriceBook` belongs to `AppDelegate` and reaches document
   windows through the environment.
 - `InkSettingsView` is the app's `Settings` scene. It picks a printer (the
-  current one first) and edits its `InkSet`: a price field in the region's
-  currency, and one row per cartridge with its name, an ink picker and a
-  rated-pages field. A footer says where the rated yield is found. Each change
+  current one first) and edits its `InkSet`: one row per cartridge with its name, an ink picker, a price field in the
+  region's currency (disabled for an unused cartridge) and a rated-pages field. A footer says where the rated yield is found. Each change
   is saved at once.
 - `AppModel.inkEstimateKey` is what the estimate depends on: the selected map,
   the plan and the page. The inspector runs
