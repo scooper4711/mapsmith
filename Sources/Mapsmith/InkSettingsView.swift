@@ -35,7 +35,7 @@ struct InkSettingsView: View {
 
                     Choose which ink each cartridge supplies for a map. Some printers have two blacks, such as a \
                     dye black for photos and a pigment black for plain paper; maps use only one, so set the other \
-                    to "Not used for maps". It then needs no price or yield.
+                    to "Exclude from estimate". It then needs no price or yield.
 
                     If you use third-party cartridges, enter the yield the seller states, or a lower figure if it \
                     states none. They are often cheaper but rated for fewer pages.
@@ -58,7 +58,7 @@ struct InkSettingsView: View {
             .labelsHidden()
             .frame(width: 140)
             .help("""
-                Which ink this cartridge supplies when pricing a map. Choose "Not used for maps" for a cartridge \
+                Which ink this cartridge supplies when pricing a map. Choose "Exclude from estimate" for a cartridge \
                 the map doesn't use, such as a photo black. It then needs no price or yield. This only affects \
                 the cost estimate, not what the printer does.
                 """)
@@ -89,7 +89,7 @@ extension InkColor {
         case .magenta: "Magenta"
         case .yellow: "Yellow"
         case .black: "Black"
-        case .unused: "Not used for maps"
+        case .unused: "Exclude from estimate"
         }
     }
 }

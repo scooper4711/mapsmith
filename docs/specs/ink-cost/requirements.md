@@ -14,7 +14,7 @@ single map, and they also drop for everything else the user prints.
   Magenta, Yellow, Black(PGBK)) when the printer reports them, and otherwise
   offers cyan, magenta, yellow and black.
 - R1.3 Each cartridge is set to the ink it supplies for a map: cyan, magenta,
-  yellow, black, or not used for maps. When a printer has several black
+  yellow, black, or excluded from the estimate. When a printer has several black
   cartridges, only one is charged for a map's black; on Canon printers the
   default is the pigment black (PGBK), which prints black on plain paper.
 - R1.4 Each price is a plain amount in the user's currency, shown with the
@@ -39,5 +39,5 @@ single map, and they also drop for everything else the user prints.
   White paper costs nothing.
 - R3.2 A cartridge's cost for a page is its own price, times the page's
   coverage of its ink divided by 5%, divided by its rated yield. A cartridge
-  not used for maps costs nothing and needs no price.
+  excluded from the estimate costs nothing and needs no price.
 - R3.3 The map's cost is the sum over its pages and cartridges.
