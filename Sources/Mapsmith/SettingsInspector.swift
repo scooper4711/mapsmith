@@ -38,6 +38,8 @@ struct SettingsInspector: View {
             if let plan = model.plan { resultSection(plan) }
         }
         .formStyle(.grouped)
+        // Here rather than on the ink row, which is empty until there is an estimate.
+        .task(id: model.inkEstimateKey) { await model.estimateInk() }
     }
 
     @ViewBuilder private var scaleDescription: some View {
@@ -84,6 +86,7 @@ struct SettingsInspector: View {
             LabeledContent("Pages", value: "\(plan.columns) × \(plan.rows) = \(plan.sheetCount)")
             LabeledContent("Printed size", value: inches(CGSize(width: plan.mapSize.width / plan.pixelsPerInch,
                                                                 height: plan.mapSize.height / plan.pixelsPerInch)))
+            InkCostRow()
             if plan.rotated {
                 Text("Map turned 90° to use fewer pages.").font(.caption).foregroundStyle(.secondary)
             }
