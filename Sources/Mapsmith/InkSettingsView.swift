@@ -20,9 +20,18 @@ struct InkSettingsView: View {
                 Text("Cartridges")
             } footer: {
                 Text("""
-                    Enter what each cartridge costs and its rated yield in A4 pages (ISO/IEC 24711). The yield is \
-                    on the cartridge's box and on the Specifications tab of the printer's page on the maker's \
-                    website.
+                    Enter what one cartridge costs and the number of pages it is rated for. Each cartridge has \
+                    its own yield: a black cartridge, a color cartridge and an XL cartridge are rated differently, \
+                    so look up every cartridge you use.
+
+                    Find the yield on the ink maker's own web page for your printer or cartridge (look for \
+                    "Specifications" or "Supplies"), or on the cartridge's box. Use the standard page yield for \
+                    plain-paper documents, measured to ISO/IEC 24711 on A4 pages at 5% coverage. Don't use the \
+                    photo yield (for example 4x6 prints), which counts a different, much smaller page. If the \
+                    page lists several yields for a cartridge, take the one for text or document pages.
+
+                    The yield is for the maker's own ink. Third-party cartridges are often cheaper but rated for \
+                    fewer pages, so use the yield the third-party seller states, or a lower figure if it states none.
                     """)
                     .font(.caption).foregroundStyle(.secondary)
             }
