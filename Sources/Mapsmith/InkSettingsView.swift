@@ -57,6 +57,11 @@ struct InkSettingsView: View {
             }
             .labelsHidden()
             .frame(width: 140)
+            .help("""
+                Which ink this cartridge supplies when pricing a map. Choose "Not used for maps" for a cartridge \
+                the map doesn't use, such as a photo black. It then needs no price or yield. This only affects \
+                the cost estimate, not what the printer does.
+                """)
             TextField("Price", value: cartridge.price, format: .currency(code: Self.currencyCode))
                 .labelsHidden()
                 .multilineTextAlignment(.trailing)
