@@ -22,6 +22,13 @@ struct TilePreviewView: View {
             .padding(24)
         } else if model.isBusy {
             ProgressView("Loading map and detecting grid…")
+        } else if model.needsTooManyPages {
+            ContentUnavailableView(
+                "Too Many Pages", systemImage: "square.grid.3x3.fill",
+                description: Text("""
+                    At this scale the map would need more than \(TilePlanner.maximumPagesPerSide) pages across or \
+                    down. Check the pixels per square in Settings.
+                    """))
         } else if model.preview != nil {
             ContentUnavailableView(
                 "Scale Needed", systemImage: "ruler",

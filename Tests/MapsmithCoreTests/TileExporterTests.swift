@@ -7,7 +7,8 @@ import Testing
     @Test func exportsOnePaperSizedPagePerTile() throws {
         let map = TestSupport.gridImage(width: 1000, height: 1000, spacing: 100)
         let settings = TileSettings(page: TestSupport.letterPage)
-        let plan = TilePlanner.plan(mapSize: CGSize(width: 1000, height: 1000), pixelsPerInch: 100, settings: settings)
+        let plan = try TestSupport.plan(mapSize: CGSize(width: 1000, height: 1000), pixelsPerInch: 100,
+                                        settings: settings)
         let data = try TileExporter.pdfData(map: map, plan: plan, page: settings.page)
 
         let document = try #require(CGDataProvider(data: data as CFData).flatMap(CGPDFDocument.init))
@@ -18,7 +19,8 @@ import Testing
     @Test func tilesKeepTrueScaleAndSitInPrintableArea() throws {
         let map = TestSupport.gridImage(width: 1000, height: 1000, spacing: 100)
         let settings = TileSettings(page: TestSupport.letterPage)
-        let plan = TilePlanner.plan(mapSize: CGSize(width: 1000, height: 1000), pixelsPerInch: 100, settings: settings)
+        let plan = try TestSupport.plan(mapSize: CGSize(width: 1000, height: 1000), pixelsPerInch: 100,
+                                        settings: settings)
         let data = try TileExporter.pdfData(map: map, plan: plan, page: settings.page)
 
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID()).pdf")
@@ -34,7 +36,8 @@ import Testing
         // 10.5 × 8 in fits one letter page only when turned.
         let map = TestSupport.gridImage(width: 1050, height: 800, spacing: 100)
         let settings = TileSettings(page: TestSupport.letterPage)
-        let plan = TilePlanner.plan(mapSize: CGSize(width: 1050, height: 800), pixelsPerInch: 100, settings: settings)
+        let plan = try TestSupport.plan(mapSize: CGSize(width: 1050, height: 800), pixelsPerInch: 100,
+                                        settings: settings)
         #expect(plan.rotated && plan.sheetCount == 1)
         let data = try TileExporter.pdfData(map: map, plan: plan, page: settings.page)
         #expect(CGDataProvider(data: data as CFData).flatMap(CGPDFDocument.init)?.numberOfPages == 1)

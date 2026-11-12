@@ -31,23 +31,32 @@ public struct TileSettings: Equatable, Sendable {
 
 /// Plans how to split a map across printer pages at true scale.
 public enum TilePlanner {
-    /// Plan tiles for a map of `mapSize` pixels printed at `pixelsPerInch`.
+    /// The most pages a plan may have across or down. A scale that needs more is a mistyped or misdetected one
+    /// (ten Letter pages are over six feet of map), and a plan of thousands of pages can't be drawn.
+    public static let maximumPagesPerSide = 10
+
+    /// Plan tiles for a map of `mapSize` pixels printed at `pixelsPerInch`; nil when the scale would need more
+    /// than `maximumPagesPerSide` pages across or down, both upright and turned.
     ///
     /// Tries the map both upright and rotated 90° and keeps whichever needs fewer
     /// sheets (upright on a tie).
-    public static func plan(mapSize: CGSize, pixelsPerInch: CGFloat, settings: TileSettings) -> TilePlan {
+    public static func plan(mapSize: CGSize, pixelsPerInch: CGFloat, settings: TileSettings) -> TilePlan? {
         let upright = plan(mapSize: mapSize, pixelsPerInch: pixelsPerInch, settings: settings, rotated: false)
         let turned = plan(mapSize: mapSize, pixelsPerInch: pixelsPerInch, settings: settings, rotated: true)
+        guard let upright else { return turned }
+        guard let turned else { return upright }
         return turned.sheetCount < upright.sheetCount ? turned : upright
     }
 
-    static func plan(mapSize: CGSize, pixelsPerInch: CGFloat, settings: TileSettings, rotated: Bool) -> TilePlan {
+    static func plan(mapSize: CGSize, pixelsPerInch: CGFloat, settings: TileSettings, rotated: Bool) -> TilePlan? {
         let size = rotated ? CGSize(width: mapSize.height, height: mapSize.width) : mapSize
         let tileSize = CGSize(
             width: settings.page.imageableSizeInches.width * pixelsPerInch,
             height: settings.page.imageableSizeInches.height * pixelsPerInch
         )
         let sliver = settings.minimumSliverInches * pixelsPerInch
+        guard isWithinPageLimit(length: size.width, tile: tileSize.width),
+              isWithinPageLimit(length: size.height, tile: tileSize.height) else { return nil }
         let xSpans = spans(length: size.width, tile: tileSize.width, minimumSliver: sliver)
         let ySpans = spans(length: size.height, tile: tileSize.height, minimumSliver: sliver)
 
@@ -57,6 +66,13 @@ public enum TilePlanner {
         }
         return TilePlan(rotated: rotated, columns: xSpans.count, rows: ySpans.count,
                         pixelsPerInch: pixelsPerInch, mapSize: size, tiles: tiles)
+    }
+
+    /// Whether `length` fits on `maximumPagesPerSide` tiles. Compared as a ratio, before any page is counted or
+    /// laid out: a tiny scale gives a count too large to hold, let alone to list.
+    static func isWithinPageLimit(length: CGFloat, tile: CGFloat) -> Bool {
+        guard length > 0, tile > 0 else { return true }
+        return (length / tile).rounded(.up) <= CGFloat(maximumPagesPerSide)
     }
 
     /// Split `0..<length` into tile-sized spans, trimming a thin remainder equally from both ends.

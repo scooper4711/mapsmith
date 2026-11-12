@@ -35,7 +35,8 @@ import Testing
     @Test func aRotatedPlanIsEstimatedPerTile() throws {
         let map = Self.solidImage(width: 1050, height: 800, gray: 0)
         let settings = TileSettings(page: TestSupport.letterPage)
-        let plan = TilePlanner.plan(mapSize: CGSize(width: 1050, height: 800), pixelsPerInch: 100, settings: settings)
+        let plan = try TestSupport.plan(mapSize: CGSize(width: 1050, height: 800), pixelsPerInch: 100,
+                                        settings: settings)
         #expect(plan.rotated)
         let pages = try InkCoverageEstimator.coverage(map: map, plan: plan, page: settings.page)
         #expect(pages.count == plan.sheetCount)
@@ -68,7 +69,7 @@ import Testing
     private func coverage(of map: CGImage) throws -> [InkCoverage] {
         let settings = TileSettings(page: TestSupport.letterPage)
         let size = CGSize(width: map.width, height: map.height)
-        let plan = TilePlanner.plan(mapSize: size, pixelsPerInch: 100, settings: settings)
+        let plan = try TestSupport.plan(mapSize: size, pixelsPerInch: 100, settings: settings)
         return try InkCoverageEstimator.coverage(map: map, plan: plan, page: settings.page)
     }
 
