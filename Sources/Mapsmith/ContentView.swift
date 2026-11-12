@@ -1,3 +1,4 @@
+import AppNotices
 import MapsmithCore
 import SwiftUI
 
@@ -5,6 +6,8 @@ struct ContentView: View {
     @Environment(AppModel.self) private var model
     @Environment(DocumentRouter.self) private var router
     @State private var showsInspector = true
+    @State private var isDropTargeted = false
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         @Bindable var model = model
@@ -12,7 +15,7 @@ struct ContentView: View {
             MapListView()
                 .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 360)
         } detail: {
-            TilePreviewView()
+            detail
                 .inspector(isPresented: $showsInspector) {
                     SettingsInspector()
                         .inspectorColumnWidth(min: 260, ideal: 280, max: 360)
@@ -20,7 +23,7 @@ struct ContentView: View {
         }
         .navigationTitle(model.fileURL?.lastPathComponent ?? "Mapsmith")
         .toolbar { toolbar }
-        .onDrop(of: MapDrop.acceptedTypes, isTargeted: nil) { providers in
+        .onDrop(of: MapDrop.acceptedTypes, isTargeted: $isDropTargeted) { providers in
             MapDrop.open(providers, with: router)
         }
         .alert("Something went wrong", isPresented: Binding(
@@ -29,6 +32,18 @@ struct ContentView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(model.errorMessage ?? "")
+        }
+    }
+
+    /// A window with no file shows the two ways in, here only; the sidebar stays an empty list.
+    @ViewBuilder private var detail: some View {
+        if model.fileURL == nil, !model.isBusy {
+            EmptyWindowView(
+                title: "Open a Map", symbol: "map", message: "Drop a PDF or an image of a battle map here.",
+                isDropTargeted: isDropTargeted, open: { router.open(OpenPanel.chooseFiles()) },
+                openFromScrollkeeper: { openWindow(id: ScrollkeeperWindow.id) })
+        } else {
+            TilePreviewView()
         }
     }
 
@@ -48,27 +63,16 @@ struct ContentView: View {
 /// Sidebar: a thumbnail for every map in the open file.
 struct MapListView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         @Bindable var model = model
-        if model.items.isEmpty {
-            ContentUnavailableView {
-                Label("No File Open", systemImage: "map")
-            } description: {
-                Text("Open or drop a PDF or image of a battle map.")
-            } actions: {
-                Button("Open from Scrollkeeper…") { openWindow(id: ScrollkeeperWindow.id) }
+        List(model.items, selection: $model.selectedItemID) { item in
+            VStack(alignment: .leading, spacing: 6) {
+                thumbnail(for: item)
+                Text(item.title).font(.callout)
             }
-        } else {
-            List(model.items, selection: $model.selectedItemID) { item in
-                VStack(alignment: .leading, spacing: 6) {
-                    thumbnail(for: item)
-                    Text(item.title).font(.callout)
-                }
-                .padding(.vertical, 4)
-                .tag(item.id)
-            }
+            .padding(.vertical, 4)
+            .tag(item.id)
         }
     }
 
