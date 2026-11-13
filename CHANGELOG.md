@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-13
+
+### Added
+- Use tabletop-kit's shared empty window
+- Call an unused cartridge "Exclude from estimate"
+- Add a tooltip to the cartridge ink picker
+- Price each ink cartridge individually
+- Build Mapsmith for the Mac App Store
+- Show the ink cost of a map in the inspector
+- Estimate the ink a map needs and what it costs
+- Read Scrollkeeper's library from the App Group
+
+### Fixed
+- Refuse a scale that needs more than ten pages across or down
+
+### Changed
+- Wrap a long help text line
+- Say the ink settings only affect the cost estimate
+- Explain unused cartridges and tighten the third-party note
+- Explain where to find each cartridge's page yield
+- Say what deleting the app leaves on a Mac
+- Say where the review notes live and drop a wrong comment
+- Use tabletop-kit 0.17.0
+- Add ink cost spec
+- Use tabletop-kit 0.16.0
+- Use TablesideShared for Scrollkeeper's library
+- Specify reading Scrollkeeper's shared library
+- Welcome signed commits without requiring them
+- Add a contributing guide
+
+[2.0.0]: https://github.com/scooper4711/mapsmith/releases/tag/v2.0.0
+
 ## [1.2.1] - 2026-10-20
 
 [1.2.1]: https://github.com/scooper4711/mapsmith/releases/tag/v1.2.1
