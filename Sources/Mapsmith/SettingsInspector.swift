@@ -35,7 +35,15 @@ struct SettingsInspector: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
 
-            if let plan = model.plan { resultSection(plan) }
+            if let plan = model.plan {
+                resultSection(plan)
+            } else if model.needsTooManyPages {
+                Section("Result") {
+                    Label("More than \(TilePlanner.maximumPagesPerSide) pages across or down",
+                          systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                }
+            }
         }
         .formStyle(.grouped)
         // Here rather than on the ink row, which is empty until there is an estimate.

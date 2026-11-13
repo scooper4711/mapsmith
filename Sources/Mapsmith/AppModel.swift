@@ -64,10 +64,17 @@ final class AppModel {
         if let pixels = entry.pixelsPerInch(mapSize: mapPixelSize) { manualPixelsPerInch = pixels }
     }
 
+    /// How the map is cut into pages; nil without a map or a scale, or when the scale needs too many pages.
     var plan: TilePlan? {
         guard loadedMap != nil, let ppi = pixelsPerInch, ppi > 0 else { return nil }
         let settings = TileSettings(page: page, minimumSliverInches: CGFloat(minimumSliverInches))
         return TilePlanner.plan(mapSize: mapPixelSize, pixelsPerInch: ppi, settings: settings)
+    }
+
+    /// Whether the map has a scale, typed or detected, that would need more pages than a plan may have.
+    var needsTooManyPages: Bool {
+        guard loadedMap != nil, let ppi = pixelsPerInch, ppi > 0 else { return false }
+        return plan == nil
     }
 
     /// What the ink estimate depends on; it is worked out again when this changes.

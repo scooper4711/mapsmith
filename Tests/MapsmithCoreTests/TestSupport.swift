@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import Testing
 @testable import MapsmithCore
 
 /// Shared builders for MapsmithCore tests.
@@ -16,6 +17,11 @@ enum TestSupport {
     }
 
     static var hasSamplePDFs: Bool { !samplePDFs.isEmpty }
+
+    /// The plan for a map whose scale is within the page limit; throws when the planner refuses it.
+    static func plan(mapSize: CGSize, pixelsPerInch: CGFloat, settings: TileSettings) throws -> TilePlan {
+        try #require(TilePlanner.plan(mapSize: mapSize, pixelsPerInch: pixelsPerInch, settings: settings))
+    }
 
     /// Writes a Scrollkeeper title index in its wire format to a new temporary file.
     static func writeTitleIndex(version: Int = 1, titles: [[String: Any]]) throws -> URL {
