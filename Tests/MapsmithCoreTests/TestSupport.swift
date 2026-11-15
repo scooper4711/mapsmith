@@ -23,20 +23,6 @@ enum TestSupport {
         try #require(TilePlanner.plan(mapSize: mapSize, pixelsPerInch: pixelsPerInch, settings: settings))
     }
 
-    /// Writes a Scrollkeeper title index in its wire format to a new temporary file.
-    static func writeTitleIndex(version: Int = 1, titles: [[String: Any]]) throws -> URL {
-        let index: [String: Any] = ["formatVersion": version, "generatedAt": "2026-10-15T18:00:00Z", "titles": titles]
-        return try writeIndexFile(JSONSerialization.data(withJSONObject: index))
-    }
-
-    /// Writes the bytes to a new temporary file with the title index's extension.
-    static func writeIndexFile(_ data: Data) throws -> URL {
-        let url = FileManager.default.temporaryDirectory
-            .appending(path: "\(UUID().uuidString).\(ScrollkeeperIndex.fileExtension)")
-        try data.write(to: url)
-        return url
-    }
-
     /// A white RGB image with black grid lines every `spacing` pixels, over optional noise.
     static func gridImage(width: Int, height: Int, spacing: CGFloat, lineWidth: CGFloat = 1,
                           noise: Bool = false) -> CGImage {
