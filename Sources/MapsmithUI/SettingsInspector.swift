@@ -8,12 +8,7 @@ struct SettingsInspector: View {
     var body: some View {
         @Bindable var model = model
         Form {
-            Section("Printer") {
-                LabeledContent("Printer", value: model.printerName)
-                LabeledContent("Paper", value: model.paperName)
-                LabeledContent("Printable area", value: inches(model.page.imageableSizeInches))
-                Button("Page Setup…") { model.runPageSetup() }
-            }
+            PrinterSection()
 
             Section("Scale") {
                 scaleDescription
@@ -29,8 +24,10 @@ struct SettingsInspector: View {
             }
 
             Section("Edges") {
-                TextField("Skip strips under (in)", value: $model.minimumSliverInches,
-                          format: .number.precision(.fractionLength(0...2)))
+                LabeledNumberField(title: "Skip strips under (in)") {
+                    TextField("Skip strips under (in)", value: $model.minimumSliverInches,
+                              format: .number.precision(.fractionLength(0...2)))
+                }
                 Text("An edge row or column holding less map than this is trimmed instead of printed.")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -107,7 +104,10 @@ struct SettingsInspector: View {
         "\(Int(size.width)) × \(Int(size.height)) px"
     }
 
-    private func inches(_ size: CGSize) -> String {
-        String(format: "%.2f × %.2f in", size.width, size.height)
-    }
+    private func inches(_ size: CGSize) -> String { size.inchesText }
+}
+
+extension CGSize {
+    /// Width by height in inches, for a size given in inches.
+    var inchesText: String { String(format: "%.2f × %.2f in", width, height) }
 }

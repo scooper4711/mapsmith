@@ -1,13 +1,16 @@
+#if os(macOS)
 import AppKit
 import MapsmithCore
 import TablesideShared
 import SwiftUI
 
-@main
-struct MapsmithApp: App {
+/// The Mac app: a window per file, the Open from Scrollkeeper window and Settings.
+public struct MapsmithApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    var body: some Scene {
+    public init() {}
+
+    public var body: some Scene {
         // One window per file, as in Preview. Opening a file that already has a window brings it forward.
         WindowGroup(for: URL.self) { $url in
             DocumentWindow(url: url, router: appDelegate.router, recents: appDelegate.recents)
@@ -70,12 +73,6 @@ struct AppCommands: Commands {
                 .disabled(model?.plan == nil)
         }
     }
-}
-
-enum AppLinks {
-    // A literal URL that is known to parse.
-    // swiftlint:disable:next force_unwrapping
-    static let privacyPolicy = URL(string: "https://github.com/scooper4711/mapsmith/blob/main/PRIVACY.md")!
 }
 
 extension FocusedValues {
@@ -153,6 +150,9 @@ struct DocumentWindow: View {
         ContentView()
             .environment(model)
             .environment(router)
+            .environment(\.documentActions, DocumentActions(
+                open: { router.open(OpenPanel.chooseFiles()) },
+                openFromScrollkeeper: { openWindow(id: ScrollkeeperWindow.id) }))
             .focusedSceneValue(\.documentModel, model)
             .task(id: url) { showDocument() }
             // File-open events go to `AppDelegate`. Accepting them here as well stops SwiftUI
@@ -185,3 +185,4 @@ struct DocumentWindow: View {
         if let url = model.fileURL { recents.note(url) }
     }
 }
+#endif

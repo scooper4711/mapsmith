@@ -1,13 +1,13 @@
-import AppKit
+import ImageIO
 import MapsmithCore
 import SwiftUI
 
-/// File ▸ Open from Scrollkeeper…: search the maps the user owns and ask Scrollkeeper for one.
-struct ScrollkeeperWindow: View {
-    static let id = "scrollkeeper"
-
+/// Open from Scrollkeeper…: search the maps the user owns and open one, asking Scrollkeeper for it when needed.
+/// The Mac shows it in a window of its own, the iPad in a sheet.
+struct ScrollkeeperBrowser: View {
     let bridge: ScrollkeeperBridge
-    @Environment(\.dismissWindow) private var dismissWindow
+    /// Closes the window or sheet.
+    let close: () -> Void
     @Environment(\.openURL) private var openURL
     @State private var query = ""
     @State private var selection: ScrollkeeperIndex.Entry.ID?
@@ -20,26 +20,28 @@ struct ScrollkeeperWindow: View {
             HStack {
                 footnote
                 Spacer()
-                Button("Cancel", role: .cancel) { dismissWindow(id: Self.id) }
+                Button("Cancel", role: .cancel, action: close)
                     .keyboardShortcut(.cancelAction)
-                Button(selectedEntry?.downloaded == false ? "Download and Open" : "Open") { openSelection() }
+                Button(openTitle) { openSelection() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(selectedEntry == nil)
             }
         }
         .padding(20)
-        .frame(width: 520, height: 460)
         .onAppear(perform: bridge.requestIndex)
-        // The list and status links Scrollkeeper sends arrive as open events. Taking them here keeps this
-        // window in front; otherwise SwiftUI hands them to a document window and brings that forward.
-        .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
-        .onChange(of: isOpening) { if isOpening { dismissWindow(id: Self.id) } }
+        .onChange(of: isOpening) { if isOpening { close() } }
         .task(id: bridge.state) {
             isSlow = false
             guard bridge.state == .waiting else { return }
             try? await Task.sleep(for: .seconds(15))
             isSlow = !Task.isCancelled
         }
+    }
+
+    /// Download and Open for a title not on disk, or where Scrollkeeper takes no requests, a way to it.
+    private var openTitle: String {
+        guard selectedEntry?.downloaded == false else { return "Open" }
+        return bridge.takesRequests ? "Download and Open" : "Download in Scrollkeeper"
     }
 
     private var loadedIndex: ScrollkeeperIndex? {
@@ -69,6 +71,11 @@ struct ScrollkeeperWindow: View {
             unavailable("Scrollkeeper Isn't Installed", symbol: "books.vertical",
                         message: "Scrollkeeper downloads the maps you own on paizo.com.") {
                 Button("Get Scrollkeeper") { openURL(ScrollkeeperBridge.downloadPage) }
+            }
+        case .noSharedLibrary:
+            unavailable("No Maps from Scrollkeeper Yet", symbol: "books.vertical",
+                        message: "Open Scrollkeeper and sign in to paizo.com; your maps then show up here.") {
+                Button("Open Scrollkeeper", action: bridge.launchScrollkeeper)
             }
         case .unsupportedVersion:
             unavailable("Update Mapsmith", symbol: "arrow.down.circle",
@@ -150,7 +157,9 @@ struct ScrollkeeperWindow: View {
         Button("Download", systemImage: "icloud.and.arrow.down") { bridge.download(entry) }
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
-            .help("Not downloaded yet. Click to download it now, or choose Download and Open.")
+            .help(bridge.takesRequests
+                  ? "Not downloaded yet. Click to download it now, or choose Download and Open."
+                  : "Not downloaded yet. Click to download it in Scrollkeeper.")
     }
 
     private func unavailable(_ title: String, symbol: String, message: String,
@@ -192,19 +201,19 @@ struct ScrollkeeperWindow: View {
     private func openSelection() {
         guard let entry = selectedEntry else { return }
         bridge.open(entry)
-        if entry.downloaded { dismissWindow(id: Self.id) }
+        if entry.downloaded { close() }
     }
 }
 
 /// A title's cover from Scrollkeeper's folder, or a map symbol when there is none, loaded off the main thread.
 private struct CoverThumbnail: View {
     let url: URL?
-    @State private var image: NSImage?
+    @State private var image: CGImage?
 
     var body: some View {
         Group {
             if let image {
-                Image(nsImage: image).resizable().scaledToFit()
+                Image(decorative: image, scale: 1).resizable().scaledToFit()
             } else {
                 Image(systemName: "map").foregroundStyle(.secondary)
             }
@@ -212,32 +221,18 @@ private struct CoverThumbnail: View {
         .frame(width: 28, height: 36)
         .task(id: url) {
             guard let url else { return }
-            let data = await Task.detached { try? Data(contentsOf: url) }.value
-            image = data.flatMap(NSImage.init(data:))
+            image = await Task.detached { Self.loadImage(url) }.value
         }
+    }
+
+    private nonisolated static func loadImage(_ url: URL) -> CGImage? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        return CGImageSourceCreateImageAtIndex(source, 0, nil)
     }
 }
 
 extension ScrollkeeperRequest.Phase {
     var isFailure: Bool {
         if case .failed = self { true } else { false }
-    }
-}
-
-/// The system side of `ApplicationLauncher`.
-struct WorkspaceLauncher: ApplicationLauncher {
-    func isInstalled(_ bundleIdentifier: String) -> Bool {
-        NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) != nil
-    }
-
-    func openInBackground(_ url: URL) {
-        let configuration = NSWorkspace.OpenConfiguration()
-        configuration.activates = false
-        NSWorkspace.shared.open(url, configuration: configuration)
-    }
-
-    func launch(_ bundleIdentifier: String) {
-        guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) else { return }
-        NSWorkspace.shared.openApplication(at: app, configuration: .init())
     }
 }

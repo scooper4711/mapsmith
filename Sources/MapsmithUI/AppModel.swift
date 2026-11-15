@@ -1,4 +1,5 @@
-import AppKit
+import CoreGraphics
+import Foundation
 import MapsmithCore
 import Observation
 
@@ -34,14 +35,18 @@ final class AppModel {
     var manualPixelsPerInch: Double?
     var minimumSliverInches: Double = 1
 
-    /// Each window has its own page setup, starting from the one most recently chosen in any window.
-    let printInfo = NSPrintInfo.shared.copy() as? NSPrintInfo ?? .shared
+    /// The paper and printer the tiles are planned for (Page Setup on the Mac, the paper picker on the iPad).
+    let printSetup = PrintSetup()
     private(set) var page: PageGeometry = .a4Default
+    /// The rendered tiles waiting for the user to choose where to save them.
+    var exportedTiles: TilesPDF?
     /// The ink the current plan needs, once worked out for `inkEstimateKey`.
     private(set) var inkCoverage: InkEstimate?
     private var loadTask: Task<Void, Never>?
+    /// The shown file while it is read in place under security-scoped access (files chosen on the iPad).
+    private var accessedURL: URL?
 
-    init() { page = PrintSetup.geometry(of: printInfo) }
+    init() { page = printSetup.page }
 
     var selectedItem: MapItem? { items.first { $0.id == selectedItemID } }
 
@@ -83,14 +88,20 @@ final class AppModel {
         return InkEstimate.Key(itemID: itemID, plan: plan, page: page)
     }
 
-    var printerName: String { PrintSetup.printerName(of: printInfo) }
-    var paperName: String { PrintSetup.paperName(of: printInfo) }
+    var printerName: String { printSetup.printerName }
+    var paperName: String { printSetup.paperName }
+
+    /// Plans the tiles again after the paper changed.
+    func refreshPage() { page = printSetup.page }
 
     // MARK: - Opening files
 
     func open(_ url: URL) {
+        let isAccessing = url.startAccessingSecurityScopedResource()
         do {
             let found = try MapItem.items(in: url)
+            stopAccessingShownFile()
+            accessedURL = isAccessing ? url : nil
             fileURL = url
             items = found
             thumbnails = [:]
@@ -98,8 +109,14 @@ final class AppModel {
             if found.count != 1 { clearSelection() }
             loadThumbnails(for: found)
         } catch {
+            if isAccessing { url.stopAccessingSecurityScopedResource() }
             errorMessage = "\(error)"
         }
+    }
+
+    private func stopAccessingShownFile() {
+        accessedURL?.stopAccessingSecurityScopedResource()
+        accessedURL = nil
     }
 
     private func loadThumbnails(for items: [MapItem]) {
@@ -159,31 +176,23 @@ final class AppModel {
         inkCoverage = InkEstimate(key: key, coverage: pages.reduce(.zero, +), pageCount: pages.count)
     }
 
-    // MARK: - Page setup, export and print
+    // MARK: - Export and print
 
-    func runPageSetup() {
-        guard PrintSetup.runPageSetup(printInfo) else { return }
-        page = PrintSetup.geometry(of: printInfo)
-        if let chosen = printInfo.copy() as? NSPrintInfo { NSPrintInfo.shared = chosen }
-    }
-
+    /// Renders the tiles, then asks where to save them (the view shows the file exporter for `exportedTiles`).
     func exportPDF() {
         guard let map = loadedMap, let plan else { return }
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.pdf]
-        panel.nameFieldStringValue = "\(documentTitle) tiles.pdf"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let name = "\(documentTitle) tiles"
         renderTiles(map: map, plan: plan) { [weak self] data in
-            do { try data.write(to: url) } catch { self?.errorMessage = "Export failed: \(error)" }
+            self?.exportedTiles = TilesPDF(data: data, name: name)
         }
     }
 
     func printTiles() {
         guard let map = loadedMap, let plan else { return }
         let title = documentTitle
-        let printInfo = self.printInfo
+        let printSetup = self.printSetup
         renderTiles(map: map, plan: plan) { data in
-            PrintSetup.printTiles(data, title: title, printInfo: printInfo)
+            printSetup.printTiles(data, title: title)
         }
     }
 
