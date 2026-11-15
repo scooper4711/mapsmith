@@ -14,9 +14,7 @@ Scrollkeeper's `docs/specs/app-handoff/design.md` defines all of it:
 
 Being handed the list as a file, rather than reading Scrollkeeper's folder,
 works in the App Sandbox: Launch Services gives Mapsmith access to the files it
-is asked to open. Mapsmith keeps its own `Decodable` mirror of the index and
-does not depend on ScrollkeeperKit. It reads `formatVersion` first and refuses
-versions it does not know.
+is asked to open.
 
 Scrollkeeper also writes `library.json` in its folder in the App Group
 (`~/Library/Group Containers/<team ID>.io.github.scooper4711.tableside/Scrollkeeper/`),
@@ -26,46 +24,36 @@ download folder, and posts the Darwin notification
 reads that directly when it is in the group and uses the index request only as
 the fallback.
 
-The App Group lookup, the library list's format and the change notification
-are tabletop-kit's `TablesideShared` (`docs/specs/tableside-shared` there),
-shared with Scrollkeeper, which writes the list, and the other readers. Pluck
-has a bridge like this one of its own.
+The App Group lookup, the library list's format, the change notification and
+the bridge that speaks this contract are tabletop-kit's `TablesideShared`
+(`docs/specs/tableside-shared` there, R5 for the bridge), shared with
+Scrollkeeper, which writes the list, and the other readers. Pluck uses the same
+bridge with its own configuration.
 
 ## MapsmithCore
-- `ScrollkeeperIndex` decodes the index; `search(_:)` matches every word of
-  the query, folded for case and diacritics, against title and series.
-- `ScrollkeeperBridge`, `@Observable`, holds a `State` (`idle`,
-  `notInstalled`, `waiting`, `unsupportedVersion`, `unreadable`,
-  `failed(reason)` or `loaded(index)`) and the requests sent since the list was
-  last asked for, by SKU. `requestIndex()` clears them and asks for the list;
-  `receive(_:)` reads the file; `open(_:)` and `download(_:)` send a request in
-  the background; `receiveStatus(_:)` moves a request through `requested`,
-  `downloading(fraction)`, `done` and `failed(reason)`, and on `done` marks the
-  title downloaded in the loaded index.
-- `ScrollkeeperLibrary.mapIndex(in:)`, an extension of the shared type, turns
-  its titles of kind "Maps" into `ScrollkeeperIndex` entries, with `coverURL`
-  and, when the download folder is the shared one, `localFiles` from
-  `filesToOpen(in:accepting:)` with PDFs and images accepted. Neither field is
-  decoded from the handed-over index.
-- `ScrollkeeperBridge(launcher:libraryFolder:)` reads the library list first in
-  `requestIndex()` (`ScrollkeeperLibrary.read(from:)`): a missing, unreadable
-  or newer list falls back to the index request. `refreshLibrary()` reads it again, only while the list shown came
-  from it. `open(_:)` hands an entry's `localFiles` to `openDocuments`, set by
-  the app, instead of sending a request.
-- `ApplicationLauncher` is the protocol for "is this app installed", "open
-  this URL in the background" and "launch this app". The app supplies an
-  `NSWorkspace` version; tests supply a fake, as with `RecentDocumentStore`.
+- `ScrollkeeperBridgeConfiguration.mapsmith` is how Mapsmith configures the
+  shared `ScrollkeeperBridge`: app key and status scheme `mapsmith`; it lists
+  the library's titles of kind "Maps" and, every title being a map, leaves the
+  kind out of the subtitle and the search; it opens PDFs and images; and it
+  sends several requests side by side, so one map can download while another
+  is asked for.
+- Everything else is the shared bridge's: its `State`, `requestIndex()`,
+  `receive(_:)`, `open(_:)`, `download(_:)`, `receiveStatus(_:)`,
+  `refreshLibrary()`, the `ScrollkeeperIndex` it lists and searches, and
+  `ApplicationLauncher` with the Mac's `WorkspaceLauncher`. Its tests are in
+  tabletop-kit; Mapsmith tests its configuration.
 
 ## App
-- `AppDelegate` owns the bridge, made with `ToolkitGroup.scrollkeeperFolder()`.
+- `AppDelegate` owns the bridge, made with `.mapsmith`, a `WorkspaceLauncher`
+  and `ToolkitGroup.scrollkeeperFolder()`.
   `application(_:open:)` sends status links and index files to it and
   everything else to the `DocumentRouter`, so the maps Scrollkeeper opens
   arrive like any Finder open; `openDocuments` sends the maps opened from the
   shared folder to the router too. At launch it keeps a
   `LibraryChangeObserver`, which calls `refreshLibrary()` each time Scrollkeeper
   rewrites the list.
-- Each row of the list shows the map's cover (`CoverThumbnail`, read off the
-  main thread), or a map symbol.
+- Each row of the list shows the map's cover (the shared
+  `ScrollkeeperCoverThumbnail`, read off the main thread), or a map symbol.
 - `Info.plist` declares the `mapsmith` URL scheme and imports Scrollkeeper's
   index type (`io.github.scooper4711.scrollkeeper.index`) as a document type.
 - `ScrollkeeperWindow` is a `Window` scene of its own, opened with
