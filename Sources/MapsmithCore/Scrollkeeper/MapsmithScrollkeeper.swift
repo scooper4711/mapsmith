@@ -3,13 +3,15 @@ import UniformTypeIdentifiers
 
 extension ScrollkeeperBridgeConfiguration {
     /// How Mapsmith uses the Scrollkeeper bridge: it lists the maps, without their kind since every title is one,
-    /// opens their PDFs and images, and sends several requests side by side.
+    /// opens their PDFs and images, and sends several requests side by side. It reads the maps only from the
+    /// library Scrollkeeper shares, and never asks Scrollkeeper to hand the list over.
     public static var mapsmith: ScrollkeeperBridgeConfiguration {
         var configuration = ScrollkeeperBridgeConfiguration(
             appKey: "mapsmith",
             lists: { $0.kind == mapKind },
             opens: { $0.conforms(to: .pdf) || $0.conforms(to: .image) })
         configuration.showsKind = false
+        configuration.asksForIndex = false
         return configuration
     }
 

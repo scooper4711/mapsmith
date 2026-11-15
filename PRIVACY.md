@@ -17,9 +17,9 @@ your Library folder until you delete the folder named Mapsmith there.
 
 ## Other apps on your Mac
 
-Mapsmith can ask Scrollkeeper, a separate app, for the list of maps you own and to download one. Those requests go
-from app to app on your Mac, through a folder the two share; Scrollkeeper's own policy covers what it does with
-them. Mapsmith can also receive images from Pluck the same way.
+Mapsmith reads the list of maps you own from a folder it shares with Scrollkeeper, a separate app, and can ask
+Scrollkeeper to download one. Those requests go from app to app on your Mac; Scrollkeeper's own policy covers what
+it does with them. Mapsmith can also receive images from Pluck the same way.
 
 ## Printing
 

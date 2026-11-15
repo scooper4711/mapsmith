@@ -38,8 +38,8 @@ into four A4 pages at one inch per square (see [Sample map](#sample-map)).*
   **File › Open Recent** lists the latest ones. Images dragged straight out of another app, such as a map
   from [Pluck](https://github.com/scooper4711/pluck), can be dropped too.
 - **Open from Scrollkeeper** (⇧⌘O): type part of a map's name to search the Flip-Mats, Flip-Tiles and other
-  maps you own on paizo.com, as listed by [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
-  (1.4 or later), which stays in the background. A cloud marks the maps not downloaded yet: click it to
+  maps you own on paizo.com, from the library [Scrollkeeper](https://github.com/scooper4711/scrollkeeper)
+  (2.0 or later) shares with Mapsmith. Scrollkeeper stays in the background. A cloud marks the maps not downloaded yet: click it to
   download one, or press Return to download and open it in one go, and watch the download's progress. For a map pack Scrollkeeper sends the PDF, which has twice
   the resolution of the pack's JPGs. Mapsmith never signs in to Paizo itself; Scrollkeeper does the downloading.
 - **Select** a map: its grid is detected and it is split into pages that fit the printable area of the
@@ -131,8 +131,8 @@ The iPad app is `ios/Mapsmith.xcodeproj` (scheme `Mapsmith-iPad`). To build it w
 put `DEVELOPMENT_TEAM = <team>` in `ios/Local.xcconfig` (see `ios/Signing.xcconfig`).
 
 Building needs Xcode 16 or later (Swift 6 toolchain). `scripts/sign-app.sh` signs the app with the Developer ID when
-the keychain holds a Developer ID Application certificate, and ad hoc otherwise. Open `Package.swift` in Xcode to
-run and debug it.
+the keychain holds a Developer ID Application certificate, and ad hoc otherwise. An ad hoc build isn't in the
+toolkit's App Group, so its Open from Scrollkeeper lists no maps. Open `Package.swift` in Xcode to run and debug it.
 
 Tests that read real maps use PDFs in `TestData/`, which is not committed because the maps are copyrighted.
 Copy or link your own Flip-Mat PDFs there to run them; they are skipped when the folder is empty.

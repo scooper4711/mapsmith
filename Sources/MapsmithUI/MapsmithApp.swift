@@ -22,7 +22,7 @@ public struct MapsmithApp: App {
             AppCommands(router: appDelegate.router, recents: appDelegate.recents, clipboard: appDelegate.clipboard)
         }
 
-        // A window of its own, not a sheet: the links and the list Scrollkeeper sends arrive while it is
+        // A window of its own, not a sheet: the status links Scrollkeeper sends arrive while it is
         // open, and SwiftUI gives them a new document window when the frontmost one has a sheet up.
         Window("Open from Scrollkeeper", id: ScrollkeeperWindow.id) {
             ScrollkeeperWindow(bridge: appDelegate.scrollkeeper)
@@ -98,7 +98,7 @@ enum OpenPanel {
 }
 
 /// Handles files opened from Finder (double-click, drag onto the Dock icon, Open With), and what
-/// Scrollkeeper hands over: the list of maps, status links and the maps themselves.
+/// Scrollkeeper hands over: status links and the maps themselves.
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let router = DocumentRouter()
@@ -120,8 +120,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for url in urls {
             if scrollkeeper.isStatusLink(url) {
                 scrollkeeper.receiveStatus(url)
-            } else if ScrollkeeperIndex.isIndexFile(url) {
-                scrollkeeper.receive(url)
             } else {
                 documents.append(url)
             }
