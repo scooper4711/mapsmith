@@ -5,13 +5,13 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_mapsmith&metric=coverage)](https://sonarcloud.io/summary/new_code?id=scooper4711_mapsmith)
 [![GitHub Release](https://img.shields.io/github/v/release/scooper4711/mapsmith)](https://github.com/scooper4711/mapsmith/releases)
 [![GitHub Downloads](https://img.shields.io/github/downloads/scooper4711/mapsmith/total)](https://github.com/scooper4711/mapsmith/releases)
-[![Platform](https://img.shields.io/badge/platform-macOS%2015%2B-informational)](#requirements)
+[![Platform](https://img.shields.io/badge/platform-macOS%2015%2B%20%7C%20iPadOS%2018%2B-informational)](#requirements)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 Have you tried printing a Flip-Mat PDF or an adventure's map at home? The map is far bigger than a sheet of
 paper, and printing it "to fit" shrinks the squares until your miniatures no longer fit them.
 
-Mapsmith is a Mac app that prints battle maps at true scale, one grid square per inch, on ordinary printer
+Mapsmith is a Mac and iPad app that prints battle maps at true scale, one grid square per inch, on ordinary printer
 paper. It finds the map's grid, splits the map into pages that fit your printer's printable area at exactly
 one inch per square, and prints them, ready to trim and tape together.
 
@@ -59,9 +59,21 @@ Grid detection sums edge strength along every row and column of the map and find
 autocorrelation. If no grid is found, the app falls back to the PDF's own page scale or the image's DPI
 metadata, and you can always type the pixels per grid square yourself in the inspector.
 
+### On the iPad
+
+The iPad app (it runs on the iPhone too) prints the same true-scale pages. The differences:
+
+- **Open** a PDF or image from the file browser, from Files or another app's share sheet (*Open in Mapsmith*), or
+  by dropping it on the window. One map is shown at a time.
+- **Open from Scrollkeeper** lists the maps in the library Scrollkeeper on the iPad shares, and opens those it has
+  downloaded. Scrollkeeper on the iPad takes no requests, so download a map there first.
+- The iPad has no Page Setup: choose the **paper** and the printer's **margin** (¼ in suits most printers) in the
+  inspector. Every page prints at 100%, whatever the printer's printable area.
+- **Ink Prices** (the drop in the toolbar) holds the cartridge prices for the printer chosen in the inspector.
+
 ## Requirements
 
-macOS 15 or later.
+macOS 15 or later, or iPadOS (or iOS) 18 or later.
 
 ## Installing a release
 
@@ -109,8 +121,14 @@ make test     # runs the unit tests
 make lint     # runs SwiftLint
 make coverage # runs the tests and enforces the coverage threshold
 make dmg      # packages the app into a disk image
-make icon     # redraws Resources/AppIcon.icns
+make icon     # redraws Resources/AppIcon.icns and the iPad's icon
+make ipad-simulator # builds the iPad app and starts it in a simulator
+make ipad-install   # builds the iPad app and installs it on a connected iPad
+make ipad-uitests   # runs the iPad UI tests, which screenshot both orientations
 ```
+
+The iPad app is `ios/Mapsmith.xcodeproj` (scheme `Mapsmith-iPad`). To build it with your own Apple developer team,
+put `DEVELOPMENT_TEAM = <team>` in `ios/Local.xcconfig` (see `ios/Signing.xcconfig`).
 
 Building needs Xcode 16 or later (Swift 6 toolchain). `scripts/sign-app.sh` signs the app with the Developer ID when
 the keychain holds a Developer ID Application certificate, and ad hoc otherwise. Open `Package.swift` in Xcode to
@@ -120,13 +138,15 @@ Tests that read real maps use PDFs in `TestData/`, which is not committed becaus
 Copy or link your own Flip-Mat PDFs there to run them; they are skipped when the folder is empty.
 
 The code is in two parts: `Sources/MapsmithCore` holds all the logic and is unit tested (grid detection,
-finding maps in PDFs, planning and exporting pages), and `Sources/Mapsmith` is the SwiftUI app.
+finding maps in PDFs, planning and exporting pages), and `Sources/MapsmithUI` is the SwiftUI app, shared by the Mac
+(`Sources/Mapsmith`) and the iPad (`ios/`).
 
 ## Where things are stored
 
 | What | Where |
 |---|---|
-| Images dropped from other apps | `~/Library/Caches/io.github.scooper4711.Mapsmith/Dropped Maps/` |
+| Images dropped from other apps | `~/Library/Caches/io.github.scooper4711.Mapsmith/Dropped Maps/`; on the iPad, the app's caches |
+| Ink prices; on the iPad also the paper, margin and printer | the app's preferences |
 | Exported pages | wherever you save them, as PDF files |
 | Maps opened from Scrollkeeper | Scrollkeeper's downloads folder; Mapsmith only reads Scrollkeeper's map list |
 
