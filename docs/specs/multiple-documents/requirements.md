@@ -22,3 +22,12 @@
   file (for example a map dragged from Pluck) can be dropped on a window and
   opens like any other file.
 - R3.2 When a drag carries both a file and image data, the file is used.
+
+## R4 New from Clipboard
+- R4.1 File ▸ New from Clipboard (⌥⌘N), on the Mac and on the iPad with a keyboard, opens the map on the
+  clipboard: an image copied in another app (such as Pluck, a browser or Preview), a screenshot, or PDFs and
+  images copied as files.
+- R4.2 Copied files are opened like dropped files; copied image data opens like a dropped image, named
+  "Pasted Map".
+- R4.3 The command is disabled when the clipboard holds no image, PDF or file.
+- R4.4 Checking the clipboard asks the user for no paste permission; only choosing the command reads it.

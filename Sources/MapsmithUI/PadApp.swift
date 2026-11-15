@@ -7,6 +7,7 @@ import UIKit
 /// The iPad and iPhone app: one window showing one map. Opening another file replaces it.
 public struct MapsmithApp: App {
     @State private var inkPrices = InkPriceBook()
+    @State private var clipboard = ClipboardWatcher()
 
     public init() {}
 
@@ -15,7 +16,27 @@ public struct MapsmithApp: App {
             PadRootView()
                 .environment(inkPrices)
         }
+        .commands { PadCommands(clipboard: clipboard) }
     }
+}
+
+/// File-menu commands for a hardware keyboard and the iPad's menu bar.
+struct PadCommands: Commands {
+    let clipboard: ClipboardWatcher
+    @FocusedValue(\.documentRouter) private var router
+
+    var body: some Commands {
+        CommandGroup(after: .newItem) {
+            Button("New from Clipboard") { if let router { clipboard.open(with: router) } }
+                .keyboardShortcut("n", modifiers: [.command, .option])
+                .disabled(router == nil || !clipboard.hasMap)
+        }
+    }
+}
+
+extension FocusedValues {
+    /// The router of the frontmost window, for the menu bar.
+    @Entry var documentRouter: DocumentRouter?
 }
 
 /// The window: the map, the file browser, and the Open from Scrollkeeper and Ink Prices sheets.
@@ -39,6 +60,7 @@ struct PadRootView: View {
                 open: { isChoosingFile = true },
                 openFromScrollkeeper: { isShowingScrollkeeper = true },
                 showInkPrices: { isShowingInkPrices = true }))
+            .focusedSceneValue(\.documentRouter, router)
             .fileImporter(isPresented: $isChoosingFile, allowedContentTypes: [.pdf, .image]) { result in
                 switch result {
                 case let .success(url): router.open([url])

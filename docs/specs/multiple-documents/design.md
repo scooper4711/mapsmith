@@ -40,3 +40,16 @@ as it is lossless) is saved by `DroppedImageStore` into the app's cache folder
 under an unused name, and that file is opened through the router. A promised
 file is not treated as a file: it is matched by exact type, since the promise
 is not readable.
+
+## New from Clipboard
+
+`ClipboardMap` (in `MapsmithCore`, so it is tested) decides what to open from the clipboard's file URLs and
+types: copied PDFs and images win, as in a drop, and copied files that are not maps open nothing, because Finder
+also puts their icons on the clipboard as images. Otherwise the data type is PNG when offered, then any other
+image, then a PDF. Pasted data goes through `DroppedImageStore` like a dropped image.
+
+`ClipboardWatcher` (in `MapsmithUI`) keeps `hasMap` for the menu item. It looks only at the clipboard's types,
+which needs no paste permission, when the app becomes active (maps are copied in other apps) and, on the iPad,
+when the clipboard changes inside Mapsmith. Until the command is chosen, copied files are assumed to be maps,
+since reading their URLs is what can ask for permission. The Mac menu sends what it opens to the app's router;
+the iPad menu reaches the window's router through a focused scene value.
