@@ -64,16 +64,15 @@ import Testing
         #expect(map.localFiles.map(\.lastPathComponent) == ["1.jpg", "2.png"])
     }
 
-    @Test func asksScrollkeeperAsMapsmithForTheListAndForATitle() {
+    @Test func asksScrollkeeperAsMapsmithForATitleButNeverForTheList() {
         let bridge = loadedBridge()
-        #expect(bridge.state == .waiting)
+        #expect(bridge.state == .noSharedLibrary)
 
         bridge.open(ScrollkeeperIndex.Entry(sku: "MAP1", title: "Forest", downloaded: false))
         bridge.download(ScrollkeeperIndex.Entry(sku: "MAP2", title: "Tavern", downloaded: false))
 
         #expect(launcher.backgroundURLs.map(\.absoluteString) == [
-            "scrollkeeper://index?app=mapsmith", "scrollkeeper://open?sku=MAP1&app=mapsmith",
-            "scrollkeeper://download?sku=MAP2&app=mapsmith"
+            "scrollkeeper://open?sku=MAP1&app=mapsmith", "scrollkeeper://download?sku=MAP2&app=mapsmith"
         ])
     }
 
