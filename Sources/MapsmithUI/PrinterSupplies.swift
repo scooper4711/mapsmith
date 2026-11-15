@@ -1,3 +1,4 @@
+#if os(macOS)
 import CUPS
 import MapsmithCore
 
@@ -25,3 +26,4 @@ enum PrinterSupplies {
         cupsGetOption(name, destination.num_options, destination.options).map { String(cString: $0) } ?? ""
     }
 }
+#endif

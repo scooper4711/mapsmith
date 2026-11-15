@@ -30,6 +30,16 @@ public struct DroppedImageStore: Sendable {
         return url
     }
 
+    /// Copies a dropped file (on the iPad a PDF arrives as a file only readable during the drop) under a name not
+    /// already in use and returns where it went.
+    public func saveCopy(of file: URL, suggestedName: String?, type: UTType) throws -> URL {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let url = unusedURL(baseName: Self.baseName(from: suggestedName ?? file.lastPathComponent),
+                            fileExtension: type.preferredFilenameExtension ?? file.pathExtension)
+        try FileManager.default.copyItem(at: file, to: url)
+        return url
+    }
+
     private static func baseName(from suggestedName: String?) -> String {
         let stem = suggestedName.map { ($0 as NSString).deletingPathExtension } ?? ""
         let safe = stem.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")

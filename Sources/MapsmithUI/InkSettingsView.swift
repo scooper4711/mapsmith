@@ -1,19 +1,17 @@
-import AppKit
 import MapsmithCore
 import SwiftUI
 
-/// The Ink pane of Settings: what each of a printer's ink cartridges costs and yields.
+/// What each of a printer's ink cartridges costs and yields: the Ink pane of Settings on the Mac, the Ink Prices
+/// sheet on the iPad.
 struct InkSettingsView: View {
     let book: InkPriceBook
 
-    @State private var printer = NSPrintInfo.shared.printer.name
+    @State private var printer = InkPrinterChoice.initialPrinter
     @State private var draft = InkSet(cartridges: [])
 
     var body: some View {
         Form {
-            Picker("Printer", selection: $printer) {
-                ForEach(NSPrinter.printerNames, id: \.self) { Text($0).tag($0) }
-            }
+            InkPrinterChoice(printer: $printer)
             Section {
                 ForEach(draft.cartridges.indices, id: \.self) { cartridgeRow($draft.cartridges[$0]) }
             } header: {
@@ -44,7 +42,9 @@ struct InkSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        #if os(macOS)
         .frame(width: 560, height: 600)
+        #endif
         .onChange(of: printer, initial: true) { loadDraft() }
         .onChange(of: draft) { book.save(draft, for: printer) }
     }

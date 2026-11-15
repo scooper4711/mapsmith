@@ -1,12 +1,16 @@
+#if os(macOS)
 import AppKit
 import MapsmithCore
 import PDFKit
 
-/// Bridges the app's print settings (`NSPrintInfo`) to the tiling geometry.
+/// A window's print settings (`NSPrintInfo`) and the tiling geometry they give.
 @MainActor
-enum PrintSetup {
-    /// The printable page described by `printInfo`, in PDF page coordinates.
-    static func geometry(of printInfo: NSPrintInfo) -> PageGeometry {
+final class PrintSetup {
+    /// Each window has its own page setup, starting from the one most recently chosen in any window.
+    let printInfo = NSPrintInfo.shared.copy() as? NSPrintInfo ?? .shared
+
+    /// The printable page, in PDF page coordinates.
+    var page: PageGeometry {
         let paper = printInfo.paperSize
         let imageable = printInfo.imageablePageBounds
         guard paper.width > 0, paper.height > 0, imageable.width > 0, imageable.height > 0 else {
@@ -15,21 +19,20 @@ enum PrintSetup {
         return PageGeometry(paperSize: paper, imageableRect: imageable)
     }
 
-    static func printerName(of printInfo: NSPrintInfo) -> String {
-        printInfo.printer.name
-    }
+    var printerName: String { printInfo.printer.name }
 
-    static func paperName(of printInfo: NSPrintInfo) -> String {
-        printInfo.localizedPaperName ?? "Custom"
-    }
+    var paperName: String { printInfo.localizedPaperName ?? "Custom" }
 
-    /// Shows the standard Page Setup sheet. Returns true when the user pressed OK.
-    static func runPageSetup(_ printInfo: NSPrintInfo) -> Bool {
-        NSPageLayout().runModal(with: printInfo) == NSApplication.ModalResponse.OK.rawValue
+    /// Shows the standard Page Setup sheet. Returns true when the user pressed OK; the choice then also becomes
+    /// the starting point for new windows.
+    func runPageSetup() -> Bool {
+        guard NSPageLayout().runModal(with: printInfo) == NSApplication.ModalResponse.OK.rawValue else { return false }
+        if let chosen = printInfo.copy() as? NSPrintInfo { NSPrintInfo.shared = chosen }
+        return true
     }
 
     /// Prints a tile PDF exactly as laid out: no scaling, rotation or margins added.
-    static func printTiles(_ data: Data, title: String, printInfo: NSPrintInfo) {
+    func printTiles(_ data: Data, title: String) {
         guard let document = PDFDocument(data: data) else { return }
         guard let info = printInfo.copy() as? NSPrintInfo else { return }
         info.topMargin = 0
@@ -50,3 +53,10 @@ enum PrintSetup {
         }
     }
 }
+
+extension AppModel {
+    func runPageSetup() {
+        if printSetup.runPageSetup() { refreshPage() }
+    }
+}
+#endif

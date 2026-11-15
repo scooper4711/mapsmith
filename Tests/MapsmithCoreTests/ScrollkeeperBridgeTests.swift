@@ -6,6 +6,7 @@ import Testing
 @MainActor
 final class FakeLauncher: ApplicationLauncher {
     var installed = true
+    var takesRequests = true
     private(set) var backgroundURLs: [URL] = []
     private(set) var launched: [String] = []
 

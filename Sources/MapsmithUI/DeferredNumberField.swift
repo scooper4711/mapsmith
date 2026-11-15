@@ -13,7 +13,9 @@ struct DeferredNumberField: View {
     @State private var draft: Double?
 
     var body: some View {
-        TextField(title, value: $draft, format: .number.precision(.fractionLength(0...2)), prompt: Text(prompt))
+        LabeledNumberField(title: title) {
+            TextField(title, value: $draft, format: .number.precision(.fractionLength(0...2)), prompt: Text(prompt))
+        }
             .onSubmit { commitDraft() }
             .onChange(of: value, initial: true) { draft = value }
             .task(id: draft) {
@@ -25,5 +27,26 @@ struct DeferredNumberField: View {
 
     private func commitDraft() {
         if draft != value { commit(draft) }
+    }
+}
+
+/// A number field with its title beside it. A Mac form shows a text field's title; an iOS form doesn't, so there
+/// the title is a label of its own and the number sits on the right.
+struct LabeledNumberField<Field: View>: View {
+    let title: String
+    @ViewBuilder let field: () -> Field
+
+    var body: some View {
+        #if os(iOS)
+        LabeledContent(title) {
+            field()
+                .multilineTextAlignment(.trailing)
+                .keyboardType(.decimalPad)
+                // Narrow, so the title gets the room and isn't cut short.
+                .frame(maxWidth: 64)
+        }
+        #else
+        field()
+        #endif
     }
 }

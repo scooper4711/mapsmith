@@ -34,7 +34,7 @@ cp "$BINARY" "$APP/Contents/MacOS/$EXECUTABLE"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp Resources/container-migration.plist "$APP/Contents/Resources/container-migration.plist"
-cp Resources/PrivacyInfo.xcprivacy "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
+cp ios/App/PrivacyInfo.xcprivacy "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" \
     -c "Set :CFBundleVersion ${BUILD_NUMBER:-$VERSION}" "$APP/Contents/Info.plist"
 # The entitlements turn on the App Sandbox. A build signed with the team's Developer ID also joins the Tableside

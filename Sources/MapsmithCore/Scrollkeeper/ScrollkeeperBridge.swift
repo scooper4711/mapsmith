@@ -2,10 +2,13 @@ import Foundation
 import Observation
 import TablesideShared
 
-/// What Mapsmith needs from the system to work with another app. The app uses `NSWorkspace`;
-/// tests use a fake.
+/// What Mapsmith needs from the system to work with another app. The Mac app uses `NSWorkspace`, the iPad app
+/// `UIApplication`; tests use a fake.
 @MainActor
 public protocol ApplicationLauncher {
+    /// Whether Scrollkeeper here answers requests from other apps. Only the Mac's does; on the iPad Mapsmith reads
+    /// the shared library and nothing else.
+    var takesRequests: Bool { get }
     func isInstalled(_ bundleIdentifier: String) -> Bool
     /// Opens the URL without bringing its app to the front.
     func openInBackground(_ url: URL)
@@ -38,6 +41,8 @@ public final class ScrollkeeperBridge {
     public enum State: Equatable, Sendable {
         case idle
         case notInstalled
+        /// Scrollkeeper takes no requests and hasn't shared its library (yet).
+        case noSharedLibrary
         /// Asked for the list; Scrollkeeper may still be starting or loading its library.
         case waiting
         case unsupportedVersion
@@ -75,15 +80,23 @@ public final class ScrollkeeperBridge {
             return
         }
         if readLibrary() { return }
+        guard launcher.takesRequests else {
+            state = .noSharedLibrary
+            return
+        }
         state = .waiting
         launcher.openInBackground(Self.requestURL(host: "index", sku: nil))
     }
 
-    /// Reads the library list again after Scrollkeeper says it changed, while the list shown came from it.
+    /// Reads the library list again after Scrollkeeper says it changed, or Mapsmith comes back to the
+    /// foreground, while the list shown came from it or there was none to show.
     public func refreshLibrary() {
-        guard isShowingLibrary else { return }
+        guard isShowingLibrary || state == .noSharedLibrary else { return }
         _ = readLibrary()
     }
+
+    /// Whether Scrollkeeper can be asked to download a title; when not, the user downloads it in Scrollkeeper.
+    public var takesRequests: Bool { launcher.takesRequests }
 
     /// Reads the list Scrollkeeper handed over.
     public func receive(_ file: URL) {
@@ -105,7 +118,7 @@ public final class ScrollkeeperBridge {
     }
 
     /// Opens the title's files when they are in the shared folder; otherwise asks Scrollkeeper to download the
-    /// title when needed and open it in Mapsmith.
+    /// title when needed and open it in Mapsmith, or where Scrollkeeper takes no requests, brings it forward.
     public func open(_ entry: ScrollkeeperIndex.Entry) {
         guard entry.localFiles.isEmpty else {
             openDocuments(entry.localFiles)
@@ -114,7 +127,8 @@ public final class ScrollkeeperBridge {
         send(entry, opens: true)
     }
 
-    /// Asks Scrollkeeper to download the title without opening it.
+    /// Asks Scrollkeeper to download the title without opening it, or where it takes no requests, brings it
+    /// forward to download it there.
     public func download(_ entry: ScrollkeeperIndex.Entry) {
         send(entry, opens: false)
     }
@@ -158,6 +172,10 @@ public final class ScrollkeeperBridge {
     }
 
     private func send(_ entry: ScrollkeeperIndex.Entry, opens: Bool) {
+        guard launcher.takesRequests else {
+            launchScrollkeeper()
+            return
+        }
         requests[entry.sku] = ScrollkeeperRequest(sku: entry.sku, opens: opens, phase: .requested)
         launcher.openInBackground(Self.requestURL(host: opens ? "open" : "download", sku: entry.sku))
     }
