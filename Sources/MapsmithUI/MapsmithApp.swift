@@ -18,7 +18,9 @@ public struct MapsmithApp: App {
                 .frame(minWidth: 900, minHeight: 600)
         }
         .defaultSize(width: 1300, height: 850)
-        .commands { AppCommands(router: appDelegate.router, recents: appDelegate.recents) }
+        .commands {
+            AppCommands(router: appDelegate.router, recents: appDelegate.recents, clipboard: appDelegate.clipboard)
+        }
 
         // A window of its own, not a sheet: the links and the list Scrollkeeper sends arrive while it is
         // open, and SwiftUI gives them a new document window when the frontmost one has a sheet up.
@@ -33,16 +35,20 @@ public struct MapsmithApp: App {
     }
 }
 
-/// File-menu commands: open, open from Scrollkeeper, open recent, export and print.
+/// File-menu commands: new from clipboard, open, open from Scrollkeeper, open recent, export and print.
 /// Export and print act on the frontmost window.
 struct AppCommands: Commands {
     let router: DocumentRouter
     @ObservedObject var recents: RecentDocuments
+    let clipboard: ClipboardWatcher
     @FocusedValue(\.documentModel) private var model
     @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
+            Button("New from Clipboard") { clipboard.open(with: router) }
+                .keyboardShortcut("n", modifiers: [.command, .option])
+                .disabled(!clipboard.hasMap)
             Button("Open…") { router.open(OpenPanel.chooseFiles()) }
                 .keyboardShortcut("o")
             Button("Open from Scrollkeeper…") { openWindow(id: ScrollkeeperWindow.id) }
@@ -98,6 +104,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let router = DocumentRouter()
     let recents = RecentDocuments(store: SystemRecentDocuments())
     let inkPrices = InkPriceBook()
+    let clipboard = ClipboardWatcher()
     let scrollkeeper = ScrollkeeperBridge(launcher: WorkspaceLauncher(),
                                           libraryFolder: ToolkitGroup.scrollkeeperFolder())
     private var libraryChanges: LibraryChangeObserver?
