@@ -46,8 +46,9 @@ Both platforms render the tiles first and then present `.fileExporter` with a
 with the same save panel as a window sheet.
 
 ## Scrollkeeper on iOS
-`ApplicationLauncher` gains `takesRequests`. The Mac launcher says yes; the
-iOS one (`PadLauncher`) says no, checks for Scrollkeeper with
+tabletop-kit's `ApplicationLauncher` has `takesRequests`. The Mac launcher
+(`WorkspaceLauncher`, also tabletop-kit's) says yes; the iOS one (`PadLauncher`,
+Mapsmith's) says no, checks for Scrollkeeper with
 `canOpenURL("scrollkeeper://")` (listed in `LSApplicationQueriesSchemes`) and
 opens it with `UIApplication.open`. When the launcher takes no requests,
 `ScrollkeeperBridge.requestIndex` goes to `.noSharedLibrary` instead of asking,
@@ -56,7 +57,8 @@ The browser view (`ScrollkeeperBrowser`) is shared; the Mac wraps it in its
 window, the iPad in a sheet. Covers load through ImageIO as `CGImage`.
 
 ## Testing
-- Unit tests in `MapsmithCoreTests` cover the bridge's iOS behavior and the
-  paper geometry (`PaperChoice` lives in `MapsmithCore`).
+- tabletop-kit's tests cover the bridge's iOS behavior; unit tests in
+  `MapsmithCoreTests` cover the paper geometry (`PaperChoice` lives in
+  `MapsmithCore`).
 - `ios/UITests` opens the app in both orientations on an iPad simulator and
   screenshots the empty window and the inspector.

@@ -1,6 +1,5 @@
-import ImageIO
-import MapsmithCore
 import SwiftUI
+import TablesideShared
 
 /// Open from Scrollkeeper…: search the maps the user owns and open one, asking Scrollkeeper for it when needed.
 /// The Mac shows it in a window of its own, the iPad in a sheet.
@@ -115,7 +114,7 @@ struct ScrollkeeperBrowser: View {
     private func results(_ entries: [ScrollkeeperIndex.Entry]) -> some View {
         List(entries, selection: $selection) { entry in
             HStack {
-                CoverThumbnail(url: entry.coverURL)
+                ScrollkeeperCoverThumbnail(url: entry.coverURL, placeholderSymbol: "map")
                 VStack(alignment: .leading, spacing: 2) {
                     Text(entry.title)
                     if !entry.subtitle.isEmpty {
@@ -202,37 +201,5 @@ struct ScrollkeeperBrowser: View {
         guard let entry = selectedEntry else { return }
         bridge.open(entry)
         if entry.downloaded { close() }
-    }
-}
-
-/// A title's cover from Scrollkeeper's folder, or a map symbol when there is none, loaded off the main thread.
-private struct CoverThumbnail: View {
-    let url: URL?
-    @State private var image: CGImage?
-
-    var body: some View {
-        Group {
-            if let image {
-                Image(decorative: image, scale: 1).resizable().scaledToFit()
-            } else {
-                Image(systemName: "map").foregroundStyle(.secondary)
-            }
-        }
-        .frame(width: 28, height: 36)
-        .task(id: url) {
-            guard let url else { return }
-            image = await Task.detached { Self.loadImage(url) }.value
-        }
-    }
-
-    private nonisolated static func loadImage(_ url: URL) -> CGImage? {
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-        return CGImageSourceCreateImageAtIndex(source, 0, nil)
-    }
-}
-
-extension ScrollkeeperRequest.Phase {
-    var isFailure: Bool {
-        if case .failed = self { true } else { false }
     }
 }

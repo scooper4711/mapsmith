@@ -43,7 +43,7 @@ extension FocusedValues {
 struct PadRootView: View {
     @State private var model = AppModel()
     @State private var router = DocumentRouter()
-    @State private var scrollkeeper = ScrollkeeperBridge(launcher: PadLauncher(),
+    @State private var scrollkeeper = ScrollkeeperBridge(configuration: .mapsmith, launcher: PadLauncher(),
                                                          libraryFolder: ToolkitGroup.scrollkeeperFolder())
     @State private var libraryChanges: LibraryChangeObserver?
     @State private var isChoosingFile = false
