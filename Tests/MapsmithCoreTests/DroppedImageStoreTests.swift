@@ -22,6 +22,19 @@ import UniformTypeIdentifiers
         #expect(names == ["Dropped Map.tiff", "Dropped Map 2.tiff", "Dropped Map 3.tiff"])
     }
 
+    @Test func copiesADroppedFileWithoutReplacingAnother() throws {
+        let original = FileManager.default.temporaryDirectory.appendingPathComponent("drop-\(UUID().uuidString).pdf")
+        try data.write(to: original)
+        defer { try? FileManager.default.removeItem(at: original) }
+
+        let first = try store.saveCopy(of: original, suggestedName: "Forest.pdf", type: .pdf)
+        let second = try store.saveCopy(of: original, suggestedName: "Forest.pdf", type: .pdf)
+
+        #expect([first, second].map(\.lastPathComponent) == ["Forest.pdf", "Forest 2.pdf"])
+        #expect(try Data(contentsOf: second) == data)
+        #expect(FileManager.default.fileExists(atPath: original.path))
+    }
+
     @Test func keepsDropsInTheCachesFolder() {
         let path = DroppedImageStore.standard.directory.path
         #expect(path.contains("/Caches/") && path.hasSuffix("/Dropped Maps"))
