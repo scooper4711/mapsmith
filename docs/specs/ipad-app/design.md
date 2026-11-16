@@ -62,3 +62,9 @@ window, the iPad in a sheet. Covers load through ImageIO as `CGImage`.
   `MapsmithCore`).
 - `ios/UITests` opens the app in both orientations on an iPad simulator and
   screenshots the empty window and the inspector.
+
+## About
+`AboutInfo.mapsmith` (MapsmithUI) holds the app's name, description and contact link; tabletop-kit's `AppNotices`
+adds the notices. The Mac app's commands include `AboutCommands`; the iPad app's include it too, with
+`AboutWindow` as a second scene for its menu bar item, and the toolbar's About (`DocumentActions.showAbout`, nil
+on the Mac) opens `AboutSheet`. `AboutUITests` opens it and finds the notice.

@@ -9,6 +9,8 @@ struct DocumentActions {
     var openFromScrollkeeper: () -> Void = {}
     /// Ink prices; on the Mac they are in Settings, so this is nil there.
     var showInkPrices: (() -> Void)?
+    /// The About screen; on the Mac it is in the app menu, so this is nil there.
+    var showAbout: (() -> Void)?
 }
 
 extension EnvironmentValues {
@@ -89,6 +91,9 @@ struct ContentView: View {
                 .disabled(model.plan == nil || model.isBusy)
             if let showInkPrices = actions.showInkPrices {
                 Button("Ink Prices", systemImage: "drop", action: showInkPrices)
+            }
+            if let showAbout = actions.showAbout {
+                Button("About", systemImage: "info.circle", action: showAbout)
             }
             Button("Settings", systemImage: "sidebar.right") { showsInspector.toggle() }
         }
