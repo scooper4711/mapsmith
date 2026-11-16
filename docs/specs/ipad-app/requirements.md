@@ -49,3 +49,9 @@ square per inch, ready to trim and tape together.
 ## R5 Layout
 - R5.1 The map list, preview and inspector fit in landscape and portrait.
 - R5.2 The Mac app keeps working as before.
+
+## R6 About
+- R6.1 Every version has an About screen with the notice Paizo's Community Use Policy prescribes and the
+  trademark line (tabletop-kit R6): on the Mac, About Mapsmith in the app menu; on the iPad and iPhone, About in
+  the toolbar, and on the iPad also About Mapsmith in the menu bar's app menu, which otherwise opens an empty
+  window.
