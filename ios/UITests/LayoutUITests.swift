@@ -34,9 +34,11 @@ final class LayoutUITests: XCTestCase {
     func testOpenFromScrollkeeperSaysWhereTheMapsComeFrom() {
         launch(.landscapeLeft)
         app.buttons["Open from Scrollkeeper…"].tap()
-        // Unsigned in the simulator, the app has no App Group, so there is no library to show.
-        let notice = app.staticTexts["Scrollkeeper Isn't Installed"]
-        XCTAssertTrue(notice.waitForExistence(timeout: 10), app.debugDescription)
+        // Unsigned in the simulator, the app has no App Group, so there is no library to show. What it says depends
+        // on whether the simulator has Scrollkeeper installed.
+        let notice = app.staticTexts.matching(NSPredicate(
+            format: "label IN %@", ["Scrollkeeper Isn't Installed", "No Maps from Scrollkeeper Yet"]))
+        XCTAssertTrue(notice.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
         keepScreenshot("Open from Scrollkeeper")
     }
 

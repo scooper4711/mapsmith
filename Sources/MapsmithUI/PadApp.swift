@@ -1,4 +1,5 @@
 #if os(iOS)
+import AppNotices
 import MapsmithCore
 import SwiftUI
 import TablesideShared
@@ -16,7 +17,12 @@ public struct MapsmithApp: App {
             PadRootView()
                 .environment(inkPrices)
         }
-        .commands { PadCommands(clipboard: clipboard) }
+        .commands {
+            PadCommands(clipboard: clipboard)
+            AboutCommands(info: .mapsmith)
+        }
+
+        AboutWindow(info: .mapsmith)
     }
 }
 
@@ -39,7 +45,7 @@ extension FocusedValues {
     @Entry var documentRouter: DocumentRouter?
 }
 
-/// The window: the map, the file browser, and the Open from Scrollkeeper and Ink Prices sheets.
+/// The window: the map, the file browser, and the Open from Scrollkeeper, Ink Prices and About sheets.
 struct PadRootView: View {
     @State private var model = AppModel()
     @State private var router = DocumentRouter()
@@ -49,6 +55,7 @@ struct PadRootView: View {
     @State private var isChoosingFile = false
     @State private var isShowingScrollkeeper = false
     @State private var isShowingInkPrices = false
+    @State private var isShowingAbout = false
     @Environment(InkPriceBook.self) private var inkPrices
     @Environment(\.scenePhase) private var scenePhase
 
@@ -59,7 +66,8 @@ struct PadRootView: View {
             .environment(\.documentActions, DocumentActions(
                 open: { isChoosingFile = true },
                 openFromScrollkeeper: { isShowingScrollkeeper = true },
-                showInkPrices: { isShowingInkPrices = true }))
+                showInkPrices: { isShowingInkPrices = true },
+                showAbout: { isShowingAbout = true }))
             .focusedSceneValue(\.documentRouter, router)
             .fileImporter(isPresented: $isChoosingFile, allowedContentTypes: [.pdf, .image]) { result in
                 switch result {
@@ -69,6 +77,7 @@ struct PadRootView: View {
             }
             .sheet(isPresented: $isShowingScrollkeeper) { scrollkeeperSheet }
             .sheet(isPresented: $isShowingInkPrices) { inkPricesSheet }
+            .sheet(isPresented: $isShowingAbout) { AboutSheet(info: .mapsmith) }
             .onOpenURL { router.open([$0]) }
             .onChange(of: router.pendingURLs, initial: true) { openPending() }
             .onChange(of: scenePhase) { if scenePhase == .active { scrollkeeper.refreshLibrary() } }

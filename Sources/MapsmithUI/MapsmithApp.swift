@@ -1,5 +1,6 @@
 #if os(macOS)
 import AppKit
+import AppNotices
 import MapsmithCore
 import TablesideShared
 import SwiftUI
@@ -20,6 +21,7 @@ public struct MapsmithApp: App {
         .defaultSize(width: 1300, height: 850)
         .commands {
             AppCommands(router: appDelegate.router, recents: appDelegate.recents, clipboard: appDelegate.clipboard)
+            AboutCommands(info: .mapsmith)
         }
 
         // A window of its own, not a sheet: the status links Scrollkeeper sends arrive while it is
