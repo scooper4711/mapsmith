@@ -124,8 +124,8 @@ struct PadRootView: View {
     }
 }
 
-/// The system side of `ApplicationLauncher` on the iPad. Scrollkeeper there takes no requests: Mapsmith only reads
-/// its shared library and brings it forward to download a map.
+/// The system side of `ApplicationLauncher` on the iPad. Scrollkeeper there takes no requests in the background:
+/// Mapsmith reads its shared library and brings it forward with a map's download link to download it.
 struct PadLauncher: ApplicationLauncher {
     // A literal URL that is known to parse.
     // swiftlint:disable:next force_unwrapping
@@ -142,6 +142,10 @@ struct PadLauncher: ApplicationLauncher {
     }
 
     func openInBackground(_ url: URL) {}
+
+    func openInForeground(_ url: URL) {
+        UIApplication.shared.open(url)
+    }
 
     func launch(_ bundleIdentifier: String) {
         UIApplication.shared.open(Self.scrollkeeperURL)
