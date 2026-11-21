@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-21
+
+### Added
+- Add the About screen with Paizo's notices
+- Add File › New from Clipboard
+- Add the iPad app
+- Let the Scrollkeeper bridge read only the shared library
+
+### Fixed
+- Ask Scrollkeeper on the iPad to download the chosen map
+
+### Changed
+- Update tabletop-kit to 1.11.4
+- Time out CI jobs instead of waiting 6 hours
+- Pin the GitHub actions to commit hashes
+- Run the tests on the self-hosted Mac mini
+- Require tabletop-kit 1.5.0
+- Require tabletop-kit 1.4.1
+- Drop the AI disclosure rule from CONTRIBUTING
+- Number every build by the commits on main
+- Number every build by the commits on main
+- Use tabletop-kit 1.4.0
+- Specify Mapsmith's About screen
+- Read only Scrollkeeper's shared library for the map list
+- Specify reading only Scrollkeeper's shared library
+- Use the shared Scrollkeeper bridge from tabletop-kit
+- Specify the shared Scrollkeeper bridge
+- Share the app between the Mac and the iPad in MapsmithUI
+- Add the iPad app spec
+
+[2.1.0]: https://github.com/scooper4711/mapsmith/releases/tag/v2.1.0
+
 ## [2.0.0] - 2026-11-13
 
 ### Added
