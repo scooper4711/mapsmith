@@ -58,7 +58,9 @@ struct ContentView: View {
             columns = model.items.count > 1 ? .automatic : .detailOnly
         }
         // An iPhone shows the map that was chosen in the list.
-        .onChange(of: model.selectedItemID) { compactColumn = .detail }
+        .onChange(of: model.selectedItemID) { if model.selectedItemID != nil { compactColumn = .detail } }
+        // Every opened file has new maps, so this runs once for each.
+        .onChange(of: model.items.first?.id) { selectFirstMapOnAPhone() }
         // On an iPhone the settings are a sheet over the whole window, so they wait to be asked for.
         .onChange(of: sizeClass, initial: true) {
             if sizeClass == .compact { showsInspector = false }
@@ -79,6 +81,15 @@ struct ContentView: View {
             Text(model.errorMessage ?? "")
         }
     }
+
+    #if os(iOS)
+    /// An iPhone has no room for the list beside the map, so a file with several maps opens on its first one. The
+    /// iPad and the Mac show the list and leave the choice to the user.
+    private func selectFirstMapOnAPhone() {
+        guard sizeClass == .compact, model.selectedItemID == nil else { return }
+        model.selectedItemID = model.items.first?.id
+    }
+    #endif
 
     private var isExporting: Binding<Bool> {
         Binding(get: { model.exportedTiles != nil }, set: { if !$0 { model.exportedTiles = nil } })

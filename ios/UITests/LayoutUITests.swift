@@ -33,6 +33,16 @@ final class LayoutUITests: XCTestCase {
         showMap(.portrait)
     }
 
+    /// The iPad has room for the list beside the map, so the choice is the user's (the iPhone makes it:
+    /// PhoneLayoutUITests).
+    func testAFileOfSeveralMapsWaitsForAChoice() throws {
+        try skipOnAPhone()
+        launch(.landscapeLeft, arguments: ["-UITestSamplePDF"])
+        XCTAssertTrue(app.staticTexts["Page 2"].waitForExistence(timeout: 20), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["Select a Map"].exists, app.debugDescription)
+        keepScreenshot("Two maps, none chosen")
+    }
+
     func testOpenFromScrollkeeperSaysWhereTheMapsComeFrom() {
         launch(.landscapeLeft)
         app.buttons["Open from Scrollkeeper…"].tap()
@@ -46,7 +56,7 @@ final class LayoutUITests: XCTestCase {
 
     /// An iPhone has no room for the inspector beside the map (PhoneLayoutUITests).
     private func skipOnAPhone() throws {
-        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .phone, "The iPhone shows the settings as a sheet.")
+        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .phone, "The iPhone shows one screen at a time.")
     }
 
     private func showEmptyWindow(_ orientation: UIDeviceOrientation) {

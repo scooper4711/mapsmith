@@ -14,9 +14,11 @@ square per inch, ready to trim and tape together.
 - R1.4 A PDF or image dropped on the window opens, as on the Mac.
 - R1.5 The iPad shows one map at a time; opening another replaces it.
 - R1.6 An iPhone shows one screen at a time. It opens on the map, or on the
-  two ways in when no map is open, never on the list of maps. The list is
-  reached only when the file holds more than one map, and choosing a map
-  there shows it. The settings open when asked for.
+  two ways in when no map is open, never on the list of maps. A file with
+  several maps opens on its first one; the iPad and the Mac show the list
+  beside the map and leave the choice to the user. The list is reached only
+  when the file holds more than one map, and choosing a map there shows it.
+  The settings open when asked for.
 
 ## R2 Open from Scrollkeeper
 - R2.1 Open from Scrollkeeper… lists the maps the user owns from

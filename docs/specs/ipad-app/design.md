@@ -64,8 +64,10 @@ window, the iPad in a sheet. Covers load through ImageIO as `CGImage`.
   screenshots the empty window and the inspector.
 - On an iPhone the split view holds one column. `ContentView` asks for the detail column
   (`preferredCompactColumn`), hides the way back to the list while the file has fewer than two maps, and closes
-  the inspector in a compact width, where it is a sheet over the window. `PhoneLayoutUITests` covers it;
-  `make iphone-uitests` runs the UI tests on an iPhone simulator.
+  the inspector in a compact width, where it is a sheet over the window. In a compact width it also selects
+  the first map of a newly opened file (R1.6). `PhoneLayoutUITests` covers it, with a two-page PDF the app
+  draws for the launch argument `-UITestSamplePDF`; `make iphone-uitests` runs the UI tests on an iPhone
+  simulator.
 
 ## About
 `AboutInfo.mapsmith` (MapsmithUI) holds the app's name, description and contact link; tabletop-kit's `AppNotices`
