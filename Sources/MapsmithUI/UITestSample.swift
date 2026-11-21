@@ -4,16 +4,34 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-/// A gridded map the UI tests open (launch argument `-UITestSample`), since the sample maps are copyrighted and the
-/// tests can't hand the app a file.
+/// The maps the UI tests open, since the sample maps are copyrighted and the tests can't hand the app a file:
+/// a gridded image (launch argument `-UITestSample`) or a PDF of two gridded pages (`-UITestSamplePDF`).
 enum UITestSample {
     static let argument = "-UITestSample"
+    static let pdfArgument = "-UITestSamplePDF"
     static let squarePixels = 100
 
     static func urlIfRequested() -> URL? {
-        guard ProcessInfo.processInfo.arguments.contains(argument) else { return nil }
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains(pdfArgument) { return twoPagePDF() }
+        guard arguments.contains(argument) else { return nil }
         let url = FileManager.default.temporaryDirectory.appending(path: "UI Test Map.png")
         guard let image = drawGrid(columns: 30, rows: 20), write(image, to: url) else { return nil }
+        return url
+    }
+
+    /// Two pages with the gridded image on each, which the app lists as two maps.
+    private static func twoPagePDF() -> URL? {
+        let url = FileManager.default.temporaryDirectory.appending(path: "UI Test Maps.pdf")
+        var page = CGRect(x: 0, y: 0, width: 720, height: 480)
+        guard let image = drawGrid(columns: 30, rows: 20),
+              let context = CGContext(url as CFURL, mediaBox: &page, nil) else { return nil }
+        for _ in 1...2 {
+            context.beginPDFPage(nil)
+            context.draw(image, in: page)
+            context.endPDFPage()
+        }
+        context.closePDF()
         return url
     }
 
