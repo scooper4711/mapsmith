@@ -24,10 +24,17 @@ struct ContentView: View {
     @State private var showsInspector = true
     @State private var isDropTargeted = false
     @State private var columns = NavigationSplitViewVisibility.automatic
+    /// The screen an iPhone opens on. Its width holds one column, and the list of maps is empty until a file is
+    /// open, so starting there would show a blank screen.
+    @State private var compactColumn = NavigationSplitViewColumn.detail
+    #if os(iOS)
+    /// Read here, outside the split view, whose columns are compact on the iPad too.
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
 
     var body: some View {
         @Bindable var model = model
-        NavigationSplitView(columnVisibility: $columns) {
+        NavigationSplitView(columnVisibility: $columns, preferredCompactColumn: $compactColumn) {
             MapListView()
                 .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 360)
         } detail: {
@@ -37,6 +44,8 @@ struct ContentView: View {
                 .navigationTitle(model.fileURL?.lastPathComponent ?? "Mapsmith")
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+                // An iPhone's way back to the list of maps, which has nothing to choose with fewer than two.
+                .navigationBarBackButtonHidden(model.items.count < 2)
                 #endif
                 .inspector(isPresented: $showsInspector) {
                     SettingsInspector()
@@ -47,6 +56,12 @@ struct ContentView: View {
         // The iPad has less room: an image or a one-map PDF has nothing to choose in the list, so the map gets it.
         .onChange(of: model.items.count, initial: true) {
             columns = model.items.count > 1 ? .automatic : .detailOnly
+        }
+        // An iPhone shows the map that was chosen in the list.
+        .onChange(of: model.selectedItemID) { compactColumn = .detail }
+        // On an iPhone the settings are a sheet over the whole window, so they wait to be asked for.
+        .onChange(of: sizeClass, initial: true) {
+            if sizeClass == .compact { showsInspector = false }
         }
         #endif
         .onDrop(of: MapDrop.acceptedTypes, isTargeted: $isDropTargeted) { providers in

@@ -23,11 +23,13 @@ final class LayoutUITests: XCTestCase {
         showEmptyWindow(.portrait)
     }
 
-    func testMapAndInspectorInLandscape() {
+    func testMapAndInspectorInLandscape() throws {
+        try skipOnAPhone()
         showMap(.landscapeLeft)
     }
 
-    func testMapAndInspectorInPortrait() {
+    func testMapAndInspectorInPortrait() throws {
+        try skipOnAPhone()
         showMap(.portrait)
     }
 
@@ -40,6 +42,11 @@ final class LayoutUITests: XCTestCase {
             format: "label IN %@", ["Scrollkeeper Isn't Installed", "No Maps from Scrollkeeper Yet"]))
         XCTAssertTrue(notice.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
         keepScreenshot("Open from Scrollkeeper")
+    }
+
+    /// An iPhone has no room for the inspector beside the map (PhoneLayoutUITests).
+    private func skipOnAPhone() throws {
+        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .phone, "The iPhone shows the settings as a sheet.")
     }
 
     private func showEmptyWindow(_ orientation: UIDeviceOrientation) {
