@@ -2,16 +2,17 @@
 
 ## Coverage (MapsmithCore)
 - `InkCoverage` is the coverage of each ink in page-equivalents: `cyan`,
-  `magenta`, `yellow` and `black`, where 1.0 is one sheet of the selected paper
-  covered completely by that ink. Coverages add up across pages, and
+  `magenta`, `yellow` and `black`, where 1.0 is one A4 page (the page the
+  rated yield is for) covered completely by that ink. Coverages add up across pages, and
   `coverage[ink]` looks one up by `InkColor`.
 - `InkCoverageEstimator.coverage(map:plan:page:)` returns one `InkCoverage` per
   tile. It draws each tile, scaled down to 36 pixels per inch, into an 8-bit
   `CGContext` in the generic CMYK color space (`CGColorSpace.genericCMYK`) and
   averages each channel. Core Graphics does the RGB-to-CMYK separation,
   including black generation, so Mapsmith doesn't need its own. The average
-  is weighted by the tile's printed area over the paper's area, so the white
-  border and an edge tile's empty part count as uncovered paper.
+  is weighted by the tile's printed area over an A4 page's area, so the white
+  border and an edge tile's empty part count as uncovered paper, and A3 pages
+  count as two A4 pages of ink.
 - It uses the same rotated map and tile rectangles as `TileExporter`, so the
   estimate matches what is printed. It throws
   `TileExportError.imageProcessingFailed` with the step that failed.

@@ -34,8 +34,10 @@ single map, and they also drop for everything else the user prints.
   Mapsmith shows no estimate and says nothing about ink.
 
 ## R3 How the estimate is worked out
-- R3.1 The ink a page needs is the share of the paper that each ink covers
-  when the printed tile is separated into cyan, magenta, yellow and black.
+- R3.1 The ink a page needs is the share of an A4 page that each ink covers
+  when the printed tile is separated into cyan, magenta, yellow and black,
+  because the rated yield is for A4 pages. A page of larger paper, such as A3,
+  takes proportionally more ink than an A4 page, and a smaller one less.
   White paper costs nothing.
 - R3.2 A cartridge's cost for a page is its own price, times the page's
   coverage of its ink divided by 5%, divided by its rated yield. A cartridge
