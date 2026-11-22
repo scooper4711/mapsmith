@@ -21,19 +21,23 @@ final class StoreScreenshots: XCTestCase {
         try save("1-map")
     }
 
-    /// The map printed on A3 with the ink it needs: the inspector scrolled down to the result.
+    /// The map printed on A3 with the ink it needs: the inspector scrolled down to the result. The iPhone shows the
+    /// inspector over the map, so it is opened first.
     @MainActor
     func testMapOnA3() throws {
-        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .phone, "The iPad shows the inspector beside the map.")
         try launchMap(arguments: Self.canonSetup)
-        app.staticTexts["Printed size"].firstMatch.swipeUp()
+        if UIDevice.current.userInterfaceIdiom == .phone { app.buttons["Settings"].firstMatch.tap() }
+        let printedSize = app.staticTexts["Printed size"].firstMatch
+        // The inspector's list builds its rows as they scroll into view.
+        for _ in 0..<8 where !printedSize.exists { app.swipeUp() }
+        XCTAssertTrue(printedSize.waitForExistence(timeout: 10), app.debugDescription)
+        printedSize.swipeUp()
         try save("2-a3-ink")
     }
 
     /// What the printer's cartridges cost and yield, from Canon's own price list and specifications.
     @MainActor
     func testInkPrices() throws {
-        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .phone, "The iPad shows the inspector beside the map.")
         try launchMap(arguments: Self.canonSetup)
         app.buttons["Ink Prices"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Ink Prices"].waitForExistence(timeout: 10), app.debugDescription)
