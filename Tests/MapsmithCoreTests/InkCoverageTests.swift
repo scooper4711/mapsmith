@@ -13,12 +13,25 @@ import Testing
         #expect(total.black > 0.5)
     }
 
-    @Test func coverageIsTheTilesShareOfThePaper() throws {
-        // 8 × 10 in of black on an 8.5 × 11 in sheet: the printed share of the sheet bounds the coverage.
+    @Test func coverageIsTheTilesShareOfAnA4Page() throws {
+        // 8 × 10 in of black: its share of an A4 page (8.27 × 11.69 in) bounds the coverage.
         let page = try #require(coverage(of: Self.solidImage(width: 800, height: 1000, gray: 0)).first)
-        let share = (8.0 * 10) / (8.5 * 11)
+        let share = (8.0 * 10) / (595.28 / 72 * 841.89 / 72)
         #expect(page.black <= share + 0.01)
         #expect(page.black > share * 0.6)
+    }
+
+    @Test func aFullA3PageTakesTwiceTheInkOfAnA4Page() throws {
+        // The rated yield is for A4 pages, so a page of black over all of an A3 sheet counts as two of them.
+        let a3 = PageGeometry(paperSize: CGSize(width: 841.89, height: 1190.55),
+                              imageableRect: CGRect(x: 0, y: 0, width: 841.89, height: 1190.55))
+        let side = CGSize(width: 841.89 / 72 * 100, height: 1190.55 / 72 * 100)
+        let map = Self.solidImage(width: Int(side.width), height: Int(side.height), gray: 0)
+        let plan = Self.onePagePlan(pixelsPerInch: 100, mapSide: side.height,
+                                    tile: CGRect(origin: .zero, size: side))
+        let page = try #require(InkCoverageEstimator.coverage(map: map, plan: plan, page: a3).first)
+        #expect(page.black > 1.2)
+        #expect(page.black <= 2.01)
     }
 
     @Test func cyanMapIsMostlyCyanInk() throws {

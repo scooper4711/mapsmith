@@ -49,18 +49,20 @@ public enum InkCoverageEstimator {
     /// Resolution the tiles are separated at; plenty for an average.
     static let pixelsPerInch: CGFloat = 36
 
+    /// The area of an A4 page in points, which the rated yields are measured on (ISO/IEC 24711).
+    static let ratedPageArea = 595.28 * 841.89
+
     /// One coverage per tile of `plan`, as `TileExporter` prints them on `page`.
     public static func coverage(map: CGImage, plan: TilePlan, page: PageGeometry) throws -> [InkCoverage] {
         let oriented = plan.rotated ? try TileExporter.rotatedClockwise(map) : map
-        let paperArea = Double(page.paperSize.width * page.paperSize.height)
-        guard paperArea > 0 else { return plan.tiles.map { _ in .zero } }
+        guard page.paperSize.width * page.paperSize.height > 0 else { return plan.tiles.map { _ in .zero } }
         return try plan.tiles.map { tile in
             guard let crop = oriented.cropping(to: tile.integral) else {
                 throw TileExportError.imageProcessingFailed("cropping a tile for the ink estimate")
             }
             let printedSize = CGSize(width: tile.width / plan.pixelsPerInch * pointsPerInch,
                                      height: tile.height / plan.pixelsPerInch * pointsPerInch)
-            let share = Double(printedSize.width * printedSize.height) / paperArea
+            let share = Double(printedSize.width * printedSize.height) / ratedPageArea
             return try averageCoverage(of: crop, printedSize: printedSize).scaled(by: share)
         }
     }
