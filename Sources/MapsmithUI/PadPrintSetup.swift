@@ -39,9 +39,15 @@ final class PrintSetup {
     /// Shows the system printer picker and remembers the printer chosen.
     func choosePrinter() {
         let picker = UIPrinterPickerController(initiallySelectedPrinter: printerURL.map(UIPrinter.init(url:)))
-        picker.present(animated: true) { [weak self] picker, chosen, _ in
+        let remember: UIPrinterPickerController.CompletionHandler = { [weak self] picker, chosen, _ in
             guard chosen, let printer = picker.selectedPrinter else { return }
             MainActor.assumeIsolated { self?.remember(printer) }
+        }
+        // The iPad shows the picker as a popover, which needs a view to point at; without one it never appears.
+        if UIDevice.current.userInterfaceIdiom == .pad, let anchor = PopoverAnchor.topmost() {
+            picker.present(from: anchor.rect, in: anchor.view, animated: true, completionHandler: remember)
+        } else {
+            picker.present(animated: true, completionHandler: remember)
         }
     }
 
@@ -54,6 +60,19 @@ final class PrintSetup {
         printerURL = printer.url
         defaults.set(printerName, forKey: Key.printer)
         defaults.set(printerURL, forKey: Key.printerURL)
+    }
+}
+
+/// Where the iPad's printer popover points: the middle of the view on top, which is the sheet when one is showing.
+@MainActor
+private enum PopoverAnchor {
+    static func topmost() -> (view: UIView, rect: CGRect)? {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let window = scenes.flatMap(\.windows).first { $0.isKeyWindow }
+        var top = window?.rootViewController
+        while let presented = top?.presentedViewController { top = presented }
+        guard let view = top?.view else { return nil }
+        return (view, CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1))
     }
 }
 
