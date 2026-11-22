@@ -9,15 +9,25 @@ import UniformTypeIdentifiers
 enum UITestSample {
     static let argument = "-UITestSample"
     static let pdfArgument = "-UITestSamplePDF"
+    static let fileVariable = "UITestSampleFile"
     static let squarePixels = 100
 
     static func urlIfRequested() -> URL? {
+        if let file = ProcessInfo.processInfo.environment[fileVariable] { return copyOfFile(at: file) }
         let arguments = ProcessInfo.processInfo.arguments
         if arguments.contains(pdfArgument) { return twoPagePDF() }
         guard arguments.contains(argument) else { return nil }
         let url = FileManager.default.temporaryDirectory.appending(path: "UI Test Map.png")
         guard let image = drawGrid(columns: 30, rows: 20), write(image, to: url) else { return nil }
         return url
+    }
+
+    /// A map from outside the app, for the store's screenshots (`UITestSampleFile`).
+    private static func copyOfFile(at path: String) -> URL? {
+        let source = URL(fileURLWithPath: path)
+        let copy = FileManager.default.temporaryDirectory.appending(path: source.lastPathComponent)
+        try? FileManager.default.removeItem(at: copy)
+        return (try? FileManager.default.copyItem(at: source, to: copy)) == nil ? nil : copy
     }
 
     /// Two pages with the gridded image on each, which the app lists as two maps.
