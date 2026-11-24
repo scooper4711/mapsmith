@@ -11,7 +11,7 @@ let package = Package(
         .library(name: "MapsmithUI", targets: ["MapsmithUI"])
     ],
     dependencies: [
-        .package(url: "https://github.com/scooper4711/tabletop-kit.git", from: "1.18.0")
+        .package(url: "https://github.com/scooper4711/tabletop-kit.git", from: "1.19.0")
     ],
     targets: [
         .target(name: "MapsmithCore", dependencies: [.product(name: "TablesideShared", package: "tabletop-kit")]),
