@@ -7,7 +7,8 @@ are tabletop-kit's `scripts/package-appstore.sh` (its `appstore-build` spec).
 - R1.1 `CHANNEL=appstore scripts/build-app.sh` (or `make appstore`) builds the package `build/appstore/Mapsmith.pkg`
   from the same sources as the disk image; Mapsmith has no updater or payment link to leave out.
 - R1.2 The build number (`BUILD_NUMBER`) is apart from the version: it is the number of commits on main
-  (scripts/version.sh), so it increases with every merge and every upload.
+  (scripts/version.sh), so it increases with every merge and every upload. The version is the one in the `VERSION`
+  file, which names the release being worked toward.
 - R1.3 The bundle declares `ITSAppUsesNonExemptEncryption` as false, a copyright line and the real version.
 
 ## R2 Privacy
