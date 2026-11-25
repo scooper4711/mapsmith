@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- On an iPhone, a file of several maps opens on its first map, with the list of maps a tap away
+
+### Fixed
+- The printer picker now appears on the iPad, from the settings and from Ink Prices
+- An A3 page counts as two A4 pages of ink
+- On an iPhone, Mapsmith opens on the map and not on an empty list
+
 ## [2.1.0] - 2026-11-21
 
 ### Added
