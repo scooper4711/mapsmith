@@ -9,7 +9,10 @@ import SwiftUI
 public struct MapsmithApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    public init() {}
+    public init() {
+        // Before the first window copies the page setup.
+        PrintSetup.restoreSavedSetup()
+    }
 
     public var body: some Scene {
         // One window per file, as in Preview. Opening a file that already has a window brings it forward.
