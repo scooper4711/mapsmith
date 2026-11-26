@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The printer picker now appears on the iPad, from the settings and from Ink Prices
 - An A3 page counts as two A4 pages of ink
 - On an iPhone, Mapsmith opens on the map and not on an empty list
+- On the Mac, the printer and paper chosen in Page Setup are remembered the next time Mapsmith opens
 
 ## [2.1.0] - 2026-11-21
 

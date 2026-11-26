@@ -9,6 +9,8 @@
 - R1.4 The empty window shown at launch closes once a file is open.
 - R1.5 File-menu commands (Export, Page Setup, Print) act on the frontmost
   window.
+- R1.6 A new window starts from the page setup most recently confirmed in any
+  window, also after Mapsmith has been quit and opened again.
 
 ## R2 Open Recent
 - R2.1 File ▸ Open Recent lists recently opened files, newest first, and
