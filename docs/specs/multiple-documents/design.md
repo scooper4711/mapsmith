@@ -23,7 +23,7 @@ Each window gets a copy of `NSPrintInfo.shared`. Confirming Page Setup writes
 the choice back to the shared instance, so later windows start from it.
 
 The shared instance lasts only as long as the app runs, so confirming Page Setup
-also saves the choice with `PageSetupStore`: an archive of the `NSPrintInfo` in
+also saves the choice with tabletop-kit's `PageSetupStore`: an archive of the `NSPrintInfo` in
 `UserDefaults`, which keeps the printer, the orientation and a paper only that
 printer has, such as a borderless size. `MapsmithApp` makes the saved one the
 shared instance at launch, before the first window copies it.
