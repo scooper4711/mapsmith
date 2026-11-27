@@ -2,6 +2,7 @@
 import AppKit
 import MapsmithCore
 import PDFKit
+import TablesideShared
 
 /// A window's print settings (`NSPrintInfo`) and the tiling geometry they give.
 @MainActor
