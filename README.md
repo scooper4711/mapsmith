@@ -5,14 +5,14 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_mapsmith&metric=coverage)](https://sonarcloud.io/summary/new_code?id=scooper4711_mapsmith)
 [![GitHub Release](https://img.shields.io/github/v/release/scooper4711/mapsmith)](https://github.com/scooper4711/mapsmith/releases)
 [![GitHub Downloads](https://img.shields.io/github/downloads/scooper4711/mapsmith/total)](https://github.com/scooper4711/mapsmith/releases)
-[![Platform](https://img.shields.io/badge/platform-macOS%2015%2B%20%7C%20iPadOS%2018%2B-informational)](#requirements)
+[![Platform](https://img.shields.io/badge/platform-macOS%2015%2B%20%7C%20iPadOS%2018%2B%20%7C%20iOS%2018%2B-informational)](#requirements)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 Have you tried printing a Flip-Mat PDF or an adventure's map at home? The map is far bigger than a sheet of
 paper, and printing it "to fit" shrinks the squares until your miniatures no longer fit them.
 
-Mapsmith is a Mac and iPad app that prints battle maps at true scale, one grid square per inch, on ordinary printer
-paper. It finds the map's grid, splits the map into pages that fit your printer's printable area at exactly
+Mapsmith is a Mac, iPad and iPhone app that prints battle maps at true scale, one grid square per inch, on ordinary
+printer paper. It finds the map's grid, splits the map into pages that fit your printer's printable area at exactly
 one inch per square, and prints them, ready to trim and tape together.
 
 It is free and open source, and it works with any PDF or image you open; it contains no maps of its own.
@@ -59,7 +59,7 @@ Grid detection sums edge strength along every row and column of the map and find
 autocorrelation. If no grid is found, the app falls back to the PDF's own page scale or the image's DPI
 metadata, and you can always type the pixels per grid square yourself in the inspector.
 
-### On the iPad
+### On the iPad and iPhone
 
 The iPad app (it runs on the iPhone too) prints the same true-scale pages. The differences:
 
@@ -91,9 +91,8 @@ After that it opens normally.
 
 ## Tableside Toolkit
 
-Mapsmith is part of the Tableside Toolkit, free Mac apps for running Pathfinder and Starfinder games in person;
-Turnkeeper and Field Guide run on the iPad too. Like any good toolkit, each one grants a +1 item bonus to game
-prep.
+Mapsmith is part of the Tableside Toolkit, free apps for the Mac, iPad and iPhone for running Pathfinder and
+Starfinder games in person. Like any good toolkit, each one grants a +1 item bonus to game prep.
 
 - [Scrollkeeper](https://github.com/scooper4711/scrollkeeper) keeps your Paizo library in order and downloads your
   purchases.
@@ -102,9 +101,11 @@ prep.
   pawn PDFs.
 - **Mapsmith** prints battle maps at true scale on ordinary paper.
 - [Turnkeeper](https://github.com/scooper4711/turnkeeper) builds encounters and runs initiative at the table, with
-  the battle card of whoever's turn it is, on the iPad and the Mac.
+  the battle card of whoever's turn it is.
 - [Field Guide](https://github.com/scooper4711/field-guide) carries the Pathfinder and Starfinder compendium,
-  offline, on the iPad and the Mac.
+  offline.
+- [Chronicle Keeper](https://github.com/scooper4711/chronicle-keeper) keeps a record of your Organized Play
+  characters: their sessions, XP, level, reputation and Fame.
 
 ## Supporting the project
 
